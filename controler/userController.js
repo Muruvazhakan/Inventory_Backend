@@ -1,4 +1,4 @@
-
+const  CompanyUser =require('../Module/CompanyDetailModel');
 const userLoginname = [
     {
         username: 'JR modular',
@@ -105,13 +105,34 @@ const loginUser = async (req, res, next) => {
 const signIn = async (req, res, next) => {
     const { username, password } = req.body;
     console.log('get ' + username + password);
-    let finduser = finduserpass(username, password);
-    if (finduser == undefined) {
-        console.log('undefined');
-        res.status(200).json('created');
-    } else {
-        res.status(224).json('User alreay exist');
+    // let finduser = finduserpass(username, password);
+    // if (finduser == undefined) {
+    //     console.log('undefined');
+    //     res.status(200).json('created');
+    // } else {
+    //     res.status(224).json('User alreay exist');
+    // }
+
+    let isUserexit,user;
+    // try{
+    //     isUserexit = await CompanyUser.find({username:username});
+    //     console.log('req the isUserexit find '+isUserexit);
+    // }catch (er){
+    //     throw new HttpError('User find',400);
+    // }
+    try{
+        user= new CompanyUser({ 
+            username:username,
+            password:password,
+        });
+        console.log('req user input '+user);
+        await user.save();
+        console.log('req the isUserexit '+isUserexit);
+    }catch (er){
+        // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+        return res.status(400).json("error "+er);
     }
+    return res.status(201).json({message:'User Created'});
 
 }
 

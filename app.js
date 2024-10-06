@@ -1,12 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app=express();
+// const datas =require('./datas');
+
+const datas = "mongodb+srv://murutestdb:Muru_1998@muru.ypd86.mongodb.net/billedgeprod?retryWrites=true&w=majority&appName=Muru";
+const {mongoose} = require('mongoose');
 
 const userRoure = require('./router/userRoute');
 // const invoicegen = require('./router/invoicegenRoute');
-// const invoicegenRoute = require('./router/invoicegenRoute')
+const invoicegenRoute = require('./router/invoicegenRoute')
 const estimategenRoute = require('./router/estimateRoute');
-
+const app=express();
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
@@ -26,4 +29,15 @@ app.use('/user/',userRoure);
 app.use('/invoice/',invoicegenRoute);
 app.use('/estimate/',estimategenRoute);
 
-app.listen(6000);
+app.use((req,res,next) =>{
+  res.status(400)
+  res.json(("No data found"))
+});
+
+mongoose.connect(datas)
+.then(() =>{
+  app.listen(6000);
+}).catch( err =>{
+  console.log(err);
+})
+// app.listen(6000);
