@@ -5,6 +5,7 @@ const uniquevalidator = require("mongoose-unique-validator");
 const schema = mongooes.Schema;
 
 const companyUserSchema = new schema({
+    userid: {type:String, required: true},
     username: {type:String, required: true},
     password: {type:String, required: true, minlength:6},
 },{
@@ -28,7 +29,7 @@ const companyBasicDetailSchema = new schema({
 const companyTermsAndConditionDetailSchema = new schema({
     userid:{type:String, required: true},
     id:{type:String, required: true},
-    title:{type:String, required: true},
+    title:{type:String},
     isvisible:{type:String, required: true},
     desc:{type:String, required: true},
     order:{type:String}

@@ -1,18 +1,5 @@
 const EstimateDetails = require('../Module/EstimateDetailModel');
 const HttpError = require("../Module/httpError");
-let estimate = [{
-    clientAdd: "add", clientName: "name", clientPhno: "1231", estimatedate: "06/10/2024", estimatedate1: "2024-10-06", estimateid: "ES20241061000", grandtotalpvccost: "0.02",
-    grandtotalupvccost: "0.02", grandtotalwoodcost: "0.02", granttotalsqft: "0.014", userid: "12"
-},
-{
-    clientAdd: "add", clientName: "name", clientPhno: "1231", estimatedate: "06/10/2024", estimatedate1: "2024-10-06", estimateid: "ES20241061000", grandtotalpvccost: "0.02",
-    grandtotalupvccost: "0.02", grandtotalwoodcost: "0.02", granttotalsqft: "0.014", userid: "12"
-},
-{
-    clientAdd: "add", clientName: "name", clientPhno: "1231", estimatedate: "06/10/2024", estimatedate1: "2024-10-06", estimateid: "ES20241061000", grandtotalpvccost: "0.02",
-    grandtotalupvccost: "0.02", grandtotalwoodcost: "0.02", granttotalsqft: "0.014", userid: "13"
-}
-];
 
 const getallestimate = async (req, res, next) => {
     let inputeuserid = req.params.userid;
