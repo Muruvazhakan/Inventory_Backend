@@ -7,7 +7,7 @@ const schema = mongooes.Schema;
 const companyUserSchema = new schema({
     userid: {type:String, required: true},
     username: {type:String, required: true},
-    password: {type:String, required: true, minlength:6},
+    password: {type:String, required: true},
 },{
     strictPopulate: false
 });

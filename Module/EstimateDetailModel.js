@@ -6,16 +6,16 @@ const estimateDetailSchema = new schema({
     columns: {type:Array, required: true}, 
     userid:{type:String, required: true}, 
     rows: {type:Array, required: true}, 
-    granttotalsqft: {type:String, required: true},
-    clientName: {type:String, required: true}, 
-    clientPhno: {type:String, required: true}, 
-    clientAdd: {type:String, required: true}, 
-    estimateid: {type:String, required: true}, 
-    estimatedate : {type:String, required: true}, 
-    estimatedate1 : {type:String, required: true}, 
-    grandtotalupvccost : {type:String, required: true},
-     grandtotalpvccost: {type:String, required: true},
-      grandtotalwoodcost: {type:String, required: true}
+    granttotalsqft: {type:String},
+    clientName: {type:String}, 
+    clientPhno: {type:String}, 
+    clientAdd: {type:String}, 
+    estimateid: {type:String}, 
+    estimatedate : {type:String}, 
+    estimatedate1 : {type:String}, 
+    grandtotalupvccost : {type:String},
+     grandtotalpvccost: {type:String},
+      grandtotalwoodcost: {type:String}
 });
 
 estimateDetailSchema.plugin(uniquevalidator);

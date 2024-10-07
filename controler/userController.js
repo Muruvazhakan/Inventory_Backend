@@ -4,6 +4,21 @@ const { CompanyUser, CompanBankDetail, CompanyBasicDetail, CompanyTermsAndCondit
 
 // const  =  require('../Module/CompanyDetailModel');
 const HttpError = require("../Module/httpError");
+const findUser = async (req, res, next) => {
+    console.log('req the user');
+    // res.json({ userList });
+    // let userlist;
+    // try{
+    //     userlist = await User.find({},'-passwords');
+    //     console.log(userlist.length + ' userlist');
+    // }catch(e){
+    //     next (new HttpError ((e),244));
+    // }
+    // if(userlist.length > 0 )
+    //     return res.status(200).json({users:userlist.map(user => user.toObject({getters: true}))});
+    // next (new HttpError (('No Values'),244));
+    return res.status(200).json('got user request');
+}
 
 
 const loginUser = async (req, res, next) => {
@@ -32,13 +47,14 @@ const loginUser = async (req, res, next) => {
         console.log('undefined');
         res.status(224).json('not found');
     } else {
-        res.status(200).json('found');
+        res.status(200).json(finduser[0].userid);
     }
 };
 
 const signIn = async (req, res, next) => {
     const { username, password } = req.body;
-    // console.log('get ' + username + password);
+    console.log(req.body);
+    console.log('get ' + username + password);
     // let finduser = finduserpass(username, password);
     // if (finduser == undefined) {
     //     console.log('undefined');
@@ -301,7 +317,7 @@ const addOrModifyCompanyTermsAndConditionDetail = async (req, res, next) => {
     res.status(200).json('TermsAndCondition Details updated');
 }
 
-
+exports.findUser =findUser;
 exports.loginUser = loginUser;
 exports.signIn = signIn;
 exports.getCompanyTermsAndConditionDetail = getCompanyTermsAndConditionDetail;

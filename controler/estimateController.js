@@ -25,46 +25,48 @@ const getallestimate = async (req, res, next) => {
 }
 
 const createorupdateestimate = async (req, res, next) => {
-    let allestimate = req.body;
+    let allestimate = req.body.estimate;
+    console.log(allestimate);
     let userid = req.params.userid;
     let singleestimate = null;
     for (let i = 0; i < allestimate.length; i++) {
         singleestimate = allestimate[i];
         let estimate = null, isexistestimate, updatesexistestimate;
-        // console.log(singleestimate);
+        console.log(singleestimate);
         try {
             updatesexistestimate = await EstimateDetails.find({ estimateid: singleestimate.estimateid });
 
         } catch (er) {
             throw new HttpError('error in exist search', 400);
         }
-        // console.log('updatesexistestimate');
-        // console.log(updatesexistestimate);
+        console.log('updatesexistestimate');
+        console.log(updatesexistestimate);
         // console.log(updatesexistestimate.length);
         if (updatesexistestimate.length === 0) {
-            try {
-                estimate = new EstimateDetails({
-                    clientAdd: singleestimate.clientAdd,
-                    clientName: singleestimate.clientName,
-                    clientPhno: singleestimate.clientPhno,
-                    estimatedate: singleestimate.estimatedate,
-                    estimatedate1: singleestimate.estimatedate1,
-                    estimateid: singleestimate.estimateid,
-                    grandtotalpvccost: singleestimate.grandtotalpvccost,
-                    grandtotalupvccost: singleestimate.grandtotalupvccost,
-                    grandtotalwoodcost: singleestimate.grandtotalwoodcost,
-                    granttotalsqft: singleestimate.granttotalsqft,
-                    userid: userid,
-                    rows: singleestimate.rows,
-                    columns: singleestimate.columns
+            estimate = new EstimateDetails({
+                clientAdd: singleestimate.clientAdd,
+                clientName: singleestimate.clientName,
+                clientPhno: singleestimate.clientPhno,
+                estimatedate: singleestimate.estimatedate,
+                estimatedate1: singleestimate.estimatedate1,
+                estimateid: singleestimate.estimateid,
+                grandtotalpvccost: singleestimate.grandtotalpvccost,
+                grandtotalupvccost: singleestimate.grandtotalupvccost,
+                grandtotalwoodcost: singleestimate.grandtotalwoodcost,
+                granttotalsqft: singleestimate.granttotalsqft,
+                userid: userid,
+                rows: singleestimate.rows,
+                columns: singleestimate.columns
 
-                });
-                // console.log('estimate');
-                // console.log(estimate);
+            });
+            console.log('estimate');
+            console.log(estimate);
+            try {
+                
                 await estimate.save({ upsert: true });
             } catch (er) {
                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-                return res.status(400).json("error " + er);
+                return res.status(400).json("error in new saving" + er);
             }
 
         }
@@ -85,15 +87,15 @@ const createorupdateestimate = async (req, res, next) => {
             isexistestimate.columns = singleestimate.columns;
             try {
 
-                // console.log('before isexistestimate');
-                // console.log(isexistestimate);
+                console.log('before isexistestimate');
+                console.log(isexistestimate);
                 await isexistestimate.save();
                 //  await EstimateDetails.findByIdAndUpdate();
-                // console.log(' after isexistestimate');
-                // console.log(isexistestimate);
+                console.log(' after isexistestimate');
+                console.log(isexistestimate);
             } catch (er) {
                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-                return res.status(400).json("error " + er);
+                return res.status(400).json("error in updating" + er);
             }
 
         }
