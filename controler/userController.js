@@ -5,7 +5,7 @@ const { CompanyUser, CompanBankDetail, CompanyBasicDetail, CompanyTermsAndCondit
 // const  =  require('../Module/CompanyDetailModel');
 const HttpError = require("../Module/httpError");
 const findUser = async (req, res, next) => {
-    console.log('req the user');
+    //console.log('req the user');
     // res.json({ userList });
     // let userlist;
     // try{
@@ -100,12 +100,12 @@ const getCompanyBankDetails = async (req, res, next) => {
     try {
         isCompanyBankDetails = await CompanBankDetail.find({ userid: userid });
         // isCompanyBankDetails = finduserpass(username, password);
-        console.log('req the isCompanyBankDetails find ' + isCompanyBankDetails);
+        //console.log('req the isCompanyBankDetails find ' + isCompanyBankDetails);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
     if (isCompanyBankDetails.length === 0) {
-        console.log('undefined');
+        //console.log('undefined');
         res.status(224).json('Company Basic Details not found');
     }
     else {
@@ -214,12 +214,12 @@ const getCompanyBasicDetails = async (req, res, next) => {
     try {
         isCompanyBasicDetails = await CompanyBasicDetail.find({ userid: userid });
         // isCompanyBasicDetails = finduserpass(username, password);
-        console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
+        //console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
     if (isCompanyBasicDetails.length === 0) {
-        console.log('undefined');
+        //console.log('undefined');
         res.status(224).json('Company Basic Details not found');
     }
     else {
@@ -235,12 +235,12 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
     try {
         isCompanyBasicDetails = await CompanyBasicDetail.find({ userid: userid });
         // isCompanyBasicDetails = finduserpass(username, password);
-        console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
+        //console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
     if (isCompanyBasicDetails.length === 0) {
-        console.log('undefined');
+        //console.log('undefined');
         try {
             isCompanyBasicDetails = new CompanyBasicDetail({
                 userid: userid,
@@ -257,9 +257,9 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
                 invoiceidcount: basicdetail.invoiceidcount,
                 estimateidcount: basicdetail.estimateidcount
             });
-            console.log('req user input ' + isCompanyBasicDetails);
+            //console.log('req user input ' + isCompanyBasicDetails);
             await isCompanyBasicDetails.save();
-            console.log('req the modified isCompanyBasicDetails ' + isCompanyBasicDetails);
+            //console.log('req the modified isCompanyBasicDetails ' + isCompanyBasicDetails);
         } catch (er) {
             // return next(new HttpError('error in DB connection in CompanyBasicDetails process'+er,404));
             return res.status(400).json("error " + er);
@@ -280,7 +280,7 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
         existCompanyBasicDetails.companythankyou = basicdetail.companythankyou;
         existCompanyBasicDetails.invoiceidcount = basicdetail.invoiceidcount;
         existCompanyBasicDetails.estimateidcount = basicdetail.estimateidcount;
-        console.log('req the modified existCompanyBasicDetails ' + existCompanyBasicDetails);
+        //console.log('req the modified existCompanyBasicDetails ' + existCompanyBasicDetails);
         try {
             await existCompanyBasicDetails.save();
         } catch (er) {
@@ -315,7 +315,7 @@ const getCompanyTermsAndConditionDetail = async (req, res, next) => {
 const addOrModifyCompanyTermsAndConditionDetail = async (req, res, next) => {
     const allTermsAndConditionDetails = req.body;
     const userid = req.params.userid;
-    console.log(allTermsAndConditionDetails);
+    //console.log(allTermsAndConditionDetails);
 
     try {
         updateTermsAndConditiondet = await CompanyTermsAndConditionDetail.deleteMany({userid: userid });
@@ -323,8 +323,8 @@ const addOrModifyCompanyTermsAndConditionDetail = async (req, res, next) => {
     } catch (er) {
         throw new HttpError('error addOrModifyCompanyTermsAndConditionDetails exist search', 400);
     }
-    console.log('updateTermsAndConditiondet');
-    console.log(updateTermsAndConditiondet);
+    //console.log('updateTermsAndConditiondet');
+    //console.log(updateTermsAndConditiondet);
 
     let singleTermsAndConditionDetails;
     for (let i = 0; i < allTermsAndConditionDetails.length; i++) {

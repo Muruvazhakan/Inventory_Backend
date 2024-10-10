@@ -2,7 +2,7 @@
 
 const getInvoicedata = async(req,res,next) =>{
 
-    console.log('get invoice');
+    // console.log('get invoice');
     
     res.status(200).json('get invoice');
 }

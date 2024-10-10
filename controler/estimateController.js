@@ -5,8 +5,8 @@ const getestimateid = async (req, res, next) => {
     let inputeuserid = req.params.userid;
     try {
         estimateidvalue = await EstimateDeatailCounter.find({ userid: inputeuserid});
-        console.log('estimateidvalue');
-        console.log(estimateidvalue);
+        //console.log('estimateidvalue');
+        //console.log(estimateidvalue);
         if (estimateidvalue.length !== 0) {
             return res.status(200).json(estimateidvalue[0].estimatedeatilcount);
         }
@@ -23,21 +23,21 @@ const getestimateid = async (req, res, next) => {
 const incremeantestimateid = async (req, res, next) => {
     let inputeuserid = req.params.userid;
     let estimateids = req.body.estimationcount;
-    console.log('estimateids');
-    console.log(estimateids);
+    //console.log('estimateids');
+    //console.log(estimateids);
     let estimateidvalue, finalsave;
     try {
         estimateidvalue = await EstimateDeatailCounter.find({ userid: inputeuserid });
     } catch (er) {
         throw new HttpError('error in search user', 400);
     }
-    console.log('estimateidvalue');
-    console.log(estimateidvalue);
+    //console.log('estimateidvalue');
+    //console.log(estimateidvalue);
     if (estimateidvalue.length > 0) {
         finalsave = estimateidvalue[0];
-        console.log('inside');
+        //console.log('inside');
         finalsave.estimatedeatilcount = estimateids;
-        console.log(finalsave);
+        //console.log(finalsave);
         try {
             await finalsave.save({ upsert: true });
         } catch (er) {
@@ -46,7 +46,7 @@ const incremeantestimateid = async (req, res, next) => {
         }
     }
     else {
-        console.log('else');
+        //console.log('else');
         finalsave = new EstimateDeatailCounter({
             userid: inputeuserid,
             estimatedeatilcount: estimateids,
@@ -64,8 +64,8 @@ const incremeantestimateid = async (req, res, next) => {
 }
 const getallestimate = async (req, res, next) => {
     let inputeuserid = req.params.userid;
-    console.log(inputeuserid);
-    console.log(req.params.toString());
+    //console.log(inputeuserid);
+    //console.log(req.params.toString());
     // let filteruserdata = estimate.filter((item) => {
     //     return item.userid === userid;
     // })
@@ -75,7 +75,7 @@ const getallestimate = async (req, res, next) => {
     } catch (er) {
         throw new HttpError('error in search user', 400);
     }
-    console.log(filteruserEstimation);
+    //console.log(filteruserEstimation);
     if (filteruserEstimation.length === 0) {
         return res.status(401).json('No estimation for this user');
     }
@@ -87,22 +87,22 @@ const getallestimate = async (req, res, next) => {
 
 const createorupdateestimate = async (req, res, next) => {
     let allestimate = req.body.estimate;
-    console.log(allestimate);
+    //console.log(allestimate);
     let userid = req.params.userid;
     let singleestimate = null;
     for (let i = 0; i < allestimate.length; i++) {
         singleestimate = allestimate[i];
         let estimate = null, isexistestimate, updatesexistestimate;
-        console.log(singleestimate);
+        //console.log(singleestimate);
         try {
             updatesexistestimate = await EstimateDetails.find({ estimateid: singleestimate.estimateid });
 
         } catch (er) {
             throw new HttpError('error in exist search', 400);
         }
-        console.log('updatesexistestimate');
-        console.log(updatesexistestimate);
-        // console.log(updatesexistestimate.length);
+        //console.log('updatesexistestimate');
+        //console.log(updatesexistestimate);
+        // //console.log(updatesexistestimate.length);
         if (updatesexistestimate.length === 0) {
             estimate = new EstimateDetails({
                 clientAdd: singleestimate.clientAdd,
@@ -120,8 +120,8 @@ const createorupdateestimate = async (req, res, next) => {
                 columns: singleestimate.columns
 
             });
-            console.log('estimate');
-            console.log(estimate);
+            //console.log('estimate');
+            //console.log(estimate);
             try {
 
                 await estimate.save({ upsert: true });
@@ -148,12 +148,12 @@ const createorupdateestimate = async (req, res, next) => {
             isexistestimate.columns = singleestimate.columns;
             try {
 
-                console.log('before isexistestimate');
-                console.log(isexistestimate);
+                //console.log('before isexistestimate');
+                //console.log(isexistestimate);
                 await isexistestimate.save();
                 //  await EstimateDetails.findByIdAndUpdate();
-                console.log(' after isexistestimate');
-                console.log(isexistestimate);
+                //console.log(' after isexistestimate');
+                //console.log(isexistestimate);
             } catch (er) {
                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
                 return res.status(400).json("error in updating" + er);
