@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const cors= require('cors');
 
 // const datas =require('./C');
+const datas = process.env.DATABASEURL;
 
-const datas = "mongodb+srv://murutestdb:Muru_1998@muru.ypd86.mongodb.net/billedgeprod?retryWrites=true&w=majority&appName=Muru";
 const {mongoose} = require('mongoose');
 
 const userRoure = require('./router/userRoute');
@@ -39,7 +39,7 @@ app.use((req,res,next) =>{
   res.json(("No data found"))
 });
 
-mongoose.connect(datas)
+mongoose.connect(process.env.DATABASEURL)
 .then(() =>{
   app.listen(port, () =>{
     console.log(`BillEdge app listening on port ${port}`)

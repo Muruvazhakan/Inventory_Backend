@@ -1,3 +1,0 @@
-NODE_ENV = DEV
-PORT = 4000
-DATABASE="mongodb+srv://murutestdb:Muru_1998@muru.ypd86.mongodb.net/billedgeprod?retryWrites=true&w=majority&appName=Muru"
