@@ -42,9 +42,9 @@ const loginUser = async (req, res, next) => {
     } catch (er) {
         throw new HttpError('error in login user' + er, 400);
     }
-    console.log(finduser);
+    //console.log(finduser);
     if (finduser.length === 0) {
-        console.log('undefined');
+        //console.log('undefined');
         res.status(224).json('not found');
     } else {
         res.status(200).json(finduser[0].userid);
@@ -53,8 +53,8 @@ const loginUser = async (req, res, next) => {
 
 const signIn = async (req, res, next) => {
     const { username, password } = req.body;
-    console.log(req.body);
-    console.log('get ' + username + password);
+    //console.log(req.body);
+    //console.log('get ' + username + password);
     // let finduser = finduserpass(username, password);
     // if (finduser == undefined) {
     //     console.log('undefined');
@@ -67,21 +67,21 @@ const signIn = async (req, res, next) => {
     try {
         isUserexit = await CompanyUser.find({ username: username });
         // isUserexit = finduserpass(username, password);
-        console.log('req the isUserexit find ' + isUserexit);
+        //console.log('req the isUserexit find ' + isUserexit);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
     if (isUserexit.length === 0) {
-        console.log('undefined');
+        //console.log('undefined');
         try {
             user = new CompanyUser({
-                userid:uuidv4(),
+                userid: uuidv4(),
                 username: username,
                 password: password,
             });
-            console.log('req user input ' + user);
+            //console.log('req user input ' + user);
             await user.save();
-            console.log('req the isUserexit ' + isUserexit);
+            //console.log('req the isUserexit ' + isUserexit);
         } catch (er) {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
             return res.status(400).json("error " + er);
@@ -117,54 +117,96 @@ const getCompanyBankDetails = async (req, res, next) => {
 const addOrModifyCompanyBankDetails = async (req, res, next) => {
     const allbankdetails = req.body;
     const userid = req.params.userid;
-    console.log('get ' + allbankdetails);
+    // console.log('get addOrModifyCompanyBankDetails');
+    // console.log(allbankdetails);
+    // console.log(allbankdetails.bankdetails);
     let singlebankdetail;
+    try {
+        updatebankdet = await CompanBankDetail.deleteMany({userid: userid });
+       
+    } catch (er) {
+        throw new HttpError('error addOrModifyCompanyBankDetails exist search', 400);
+    }
+    // console.log('updatebankdet');
+    // console.log(updatebankdet);
+
     for (let i = 0; i < allbankdetails.length; i++) {
         singlebankdetail = allbankdetails[i];
-        let existbankdet, updatebankdet, newbankdetal;
+        let  newbankdetal;
+       
+        newbankdetal = new CompanBankDetail({
+            id: singlebankdetail.id,
+            userid: userid,
+            title: singlebankdetail.title,
+            value: singlebankdetail.value,
+            isvisible: singlebankdetail.isvisible
+        });
         try {
-            updatebankdet = await CompanBankDetail.find({ id: singlebankdetail.id, userid: userid });
-
+            await newbankdetal.save({ upsert: true });
         } catch (er) {
-            throw new HttpError('error addOrModifyCompanyBankDetails exist search', 400);
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return res.status(400).json("error " + er);
         }
-        //  console.log('updatebankdet');
-        //console.log(updatebankdet);
-        if (updatebankdet.length === 0) {
-            try {
-                newbankdetal = new CompanBankDetail({
-                    id: singlebankdetail.id,
-                    userid: userid,
-                    title: singlebankdetail.title,
-                    value: singlebankdetail.value,
-                    isvisible: singlebankdetail.isvisible
-                });
-                await newbankdetal.save({ upsert: true });
-            } catch (er) {
-                // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-                return res.status(400).json("error " + er);
-            }
-        }
-        else {
-
-            existbankdet = updatebankdet[0];
-            // console.log('existbankdet');
-            // console.log(existbankdet);
-            existbankdet.title = singlebankdetail.title;
-            existbankdet.value = singlebankdetail.value;
-            existbankdet.isvisible = singlebankdetail.isvisible;
-            try {
-                await existbankdet.save({ upsert: true });
-            } catch (er) {
-                // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-                return res.status(400).json("error " + er);
-            }
-
-        }
-
     }
     res.status(200).json('Bank Details updated');
 }
+
+// const addOrModifyCompanyBankDetails = async (req, res, next) => {
+//     const allbankdetails = req.body;
+//     const userid = req.params.userid;
+//     console.log('get addOrModifyCompanyBankDetails' );
+//     console.log(allbankdetails);
+//     // console.log(allbankdetails.bankdetails);
+//     let singlebankdetail;
+//     for (let i = 0; i < allbankdetails.length; i++) {
+//         singlebankdetail = allbankdetails[i];
+//         let existbankdet, updatebankdet, newbankdetal;
+//         try {
+//             updatebankdet = await CompanBankDetail.find({ id: singlebankdetail.id, userid: userid });
+//             updatebankdet = await CompanBankDetail.deleteMany({ id: singlebankdetail.id, userid: userid });
+//         } catch (er) {
+//             throw new HttpError('error addOrModifyCompanyBankDetails exist search', 400);
+
+//         }
+//          console.log('updatebankdet');
+//         console.log(updatebankdet);
+//         if (updatebankdet.length === 0) {
+//             try {
+//                 newbankdetal = new CompanBankDetail({
+//                     id: singlebankdetail.id,
+//                     userid: userid,
+//                     title: singlebankdetail.title,
+//                     value: singlebankdetail.value,
+//                     isvisible: singlebankdetail.isvisible
+//                 });
+//                 await newbankdetal.save({ upsert: true });
+
+//             } catch (er) {
+//                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+//                 return res.status(400).json("error " + er);
+//             }
+//         }
+//         else {
+
+//             existbankdet = updatebankdet[0];
+//             // console.log('existbankdet');
+//             // console.log(existbankdet);
+//             existbankdet.title = singlebankdetail.title;
+//             existbankdet.value = singlebankdetail.value;
+//             existbankdet.isvisible = singlebankdetail.isvisible;
+
+//             try {
+//                 await existbankdet.save({ upsert: true });
+//             } catch (er) {
+//                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+//                 return res.status(400).json("error " + er);
+//             }
+
+//         }
+
+//     }
+//      res.status(200).json('Bank Details updated');
+// }
 
 const getCompanyBasicDetails = async (req, res, next) => {
     const userid = req.params.userid;
@@ -212,10 +254,12 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
                 companyOwner: basicdetail.companyOwner,
                 companyDeleration: basicdetail.companyDeleration,
                 companythankyou: basicdetail.companythankyou,
+                invoiceidcount: basicdetail.invoiceidcount,
+                estimateidcount: basicdetail.estimateidcount
             });
             console.log('req user input ' + isCompanyBasicDetails);
             await isCompanyBasicDetails.save();
-            console.log('req the isCompanyBasicDetails ' + isCompanyBasicDetails);
+            console.log('req the modified isCompanyBasicDetails ' + isCompanyBasicDetails);
         } catch (er) {
             // return next(new HttpError('error in DB connection in CompanyBasicDetails process'+er,404));
             return res.status(400).json("error " + er);
@@ -234,6 +278,9 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
         existCompanyBasicDetails.companyOwner = basicdetail.companyOwner;
         existCompanyBasicDetails.companyDeleration = basicdetail.companyDeleration;
         existCompanyBasicDetails.companythankyou = basicdetail.companythankyou;
+        existCompanyBasicDetails.invoiceidcount = basicdetail.invoiceidcount;
+        existCompanyBasicDetails.estimateidcount = basicdetail.estimateidcount;
+        console.log('req the modified existCompanyBasicDetails ' + existCompanyBasicDetails);
         try {
             await existCompanyBasicDetails.save();
         } catch (er) {
@@ -251,7 +298,7 @@ const getCompanyTermsAndConditionDetail = async (req, res, next) => {
     try {
         isCompanyTermsAndConditionDetails = await CompanyTermsAndConditionDetail.find({ userid: userid });
         // isCompanyTermsAndConditionDetails = finduserpass(username, password);
-        console.log('req the isCompanyTermsAndConditionDetails find ' + isCompanyTermsAndConditionDetails);
+        //console.log('req the isCompanyTermsAndConditionDetails find ' + isCompanyTermsAndConditionDetails);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
@@ -268,20 +315,23 @@ const getCompanyTermsAndConditionDetail = async (req, res, next) => {
 const addOrModifyCompanyTermsAndConditionDetail = async (req, res, next) => {
     const allTermsAndConditionDetails = req.body;
     const userid = req.params.userid;
-    //console.log(allTermsAndConditionDetails);
+    console.log(allTermsAndConditionDetails);
+
+    try {
+        updateTermsAndConditiondet = await CompanyTermsAndConditionDetail.deleteMany({userid: userid });
+
+    } catch (er) {
+        throw new HttpError('error addOrModifyCompanyTermsAndConditionDetails exist search', 400);
+    }
+    console.log('updateTermsAndConditiondet');
+    console.log(updateTermsAndConditiondet);
+
     let singleTermsAndConditionDetails;
     for (let i = 0; i < allTermsAndConditionDetails.length; i++) {
         singleTermsAndConditionDetails = allTermsAndConditionDetails[i];
-        let existTermsAndConditiondet, updateTermsAndConditiondet, newTermsAndConditiondetal;
-        try {
-            updateTermsAndConditiondet = await CompanyTermsAndConditionDetail.find({ id: singleTermsAndConditionDetails.id, userid: userid });
-
-        } catch (er) {
-            throw new HttpError('error addOrModifyCompanyTermsAndConditionDetails exist search', 400);
-        }
-         //console.log('updateTermsAndConditiondet');
+        let newTermsAndConditiondetal;  
+        //console.log('updateTermsAndConditiondet');
         //console.log(updateTermsAndConditiondet);
-        if (updateTermsAndConditiondet.length === 0) {
             try {
                 newTermsAndConditiondetal = new CompanyTermsAndConditionDetail({
                     id: singleTermsAndConditionDetails.id,
@@ -295,29 +345,11 @@ const addOrModifyCompanyTermsAndConditionDetail = async (req, res, next) => {
                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
                 return res.status(400).json("error " + er);
             }
-        }
-        else {
-
-            existTermsAndConditiondet = updateTermsAndConditiondet[0];
-            // console.log('existTermsAndConditiondet');
-            // console.log(existTermsAndConditiondet);
-            existTermsAndConditiondet.title = singleTermsAndConditionDetails.title;
-            existTermsAndConditiondet.desc = singleTermsAndConditionDetails.desc;
-            existTermsAndConditiondet.isvisible = singleTermsAndConditionDetails.isvisible;
-            try {
-                await existTermsAndConditiondet.save({ upsert: true });
-            } catch (er) {
-                // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-                return res.status(400).json("error " + er);
-            }
-
-        }
-
     }
     res.status(200).json('TermsAndCondition Details updated');
 }
 
-exports.findUser =findUser;
+exports.findUser = findUser;
 exports.loginUser = loginUser;
 exports.signIn = signIn;
 exports.getCompanyTermsAndConditionDetail = getCompanyTermsAndConditionDetail;

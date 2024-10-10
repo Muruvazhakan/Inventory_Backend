@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   });
 
   app.get('/',(req,res,next) =>{
-    console.log("app inside");
+   //console.log("app inside");
     res.status(200).json('got request');
   });
 

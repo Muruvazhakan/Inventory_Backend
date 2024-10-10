@@ -1,6 +1,67 @@
-const EstimateDetails = require('../Module/EstimateDetailModel');
+const {EstimateDetails,EstimateDeatailCounter} = require('../Module/EstimateDetailModel');
 const HttpError = require("../Module/httpError");
 
+const getestimateid = async (req, res, next) => {
+    let inputeuserid = req.params.userid;
+    try {
+        estimateidvalue = await EstimateDeatailCounter.find({ userid: inputeuserid});
+        console.log('estimateidvalue');
+        console.log(estimateidvalue);
+        if (estimateidvalue.length !== 0) {
+            return res.status(200).json(estimateidvalue[0].estimatedeatilcount);
+        }
+        else {
+            return res.status(200).json('No count is registered');
+        }
+
+    } catch (er) {
+        throw new HttpError('error in search user', 400);
+    }
+
+}
+
+const incremeantestimateid = async (req, res, next) => {
+    let inputeuserid = req.params.userid;
+    let estimateids = req.body.estimationcount;
+    console.log('estimateids');
+    console.log(estimateids);
+    let estimateidvalue, finalsave;
+    try {
+        estimateidvalue = await EstimateDeatailCounter.find({ userid: inputeuserid });
+    } catch (er) {
+        throw new HttpError('error in search user', 400);
+    }
+    console.log('estimateidvalue');
+    console.log(estimateidvalue);
+    if (estimateidvalue.length > 0) {
+        finalsave = estimateidvalue[0];
+        console.log('inside');
+        finalsave.estimatedeatilcount = estimateids;
+        console.log(finalsave);
+        try {
+            await finalsave.save({ upsert: true });
+        } catch (er) {
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return res.status(400).json("error " + er);
+        }
+    }
+    else {
+        console.log('else');
+        finalsave = new EstimateDeatailCounter({
+            userid: inputeuserid,
+            estimatedeatilcount: estimateids,
+        });
+        try {
+
+            await finalsave.save({ upsert: true });
+        } catch (er) {
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return res.status(400).json("error in new saving" + er);
+        }
+    }
+
+    return res.status(200).json(finalsave);
+}
 const getallestimate = async (req, res, next) => {
     let inputeuserid = req.params.userid;
     console.log(inputeuserid);
@@ -62,7 +123,7 @@ const createorupdateestimate = async (req, res, next) => {
             console.log('estimate');
             console.log(estimate);
             try {
-                
+
                 await estimate.save({ upsert: true });
             } catch (er) {
                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
@@ -104,5 +165,7 @@ const createorupdateestimate = async (req, res, next) => {
 
 }
 
+exports.getestimateid = getestimateid;
 exports.getallestimate = getallestimate;
 exports.createorupdateestimate = createorupdateestimate;
+exports.incremeantestimateid = incremeantestimateid;
