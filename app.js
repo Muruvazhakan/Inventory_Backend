@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors= require('cors');
-const PORT = process.env.PORT || 4000;
+const port = process.env.PORT || 4000;
 // const datas =require('./datas');
 
 const datas = "mongodb+srv://murutestdb:Muru_1998@muru.ypd86.mongodb.net/billedgeprod?retryWrites=true&w=majority&appName=Muru";
@@ -39,8 +39,8 @@ app.use((req,res,next) =>{
 
 mongoose.connect(datas)
 .then(() =>{
-  app.listen(PORT, () =>{
-    console.log("Server Running in "+ PORT);
+  app.listen(port, () =>{
+    console.log("Server Running in "+ port);
 });
 }).catch( err =>{
   console.log(err);
