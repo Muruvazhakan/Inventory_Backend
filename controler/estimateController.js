@@ -11,7 +11,7 @@ const getestimateid = async (req, res, next) => {
             return res.status(200).json(estimateidvalue[0].estimatedeatilcount);
         }
         else {
-            return res.status(200).json('No count is registered');
+            return res.status(204).json('No count is registered');
         }
 
     } catch (er) {
