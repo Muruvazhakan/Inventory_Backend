@@ -4,7 +4,7 @@ const port = process.env.PORT || 4000;
 const bodyParser = require('body-parser');
 const cors= require('cors');
 
-// const datas =require('./datas');
+// const datas =require('./C');
 
 const datas = "mongodb+srv://murutestdb:Muru_1998@muru.ypd86.mongodb.net/billedgeprod?retryWrites=true&w=majority&appName=Muru";
 const {mongoose} = require('mongoose');
