@@ -1,7 +1,9 @@
 const express = require('express');
+const app=express();
+const port = process.env.PORT || 4000;
 const bodyParser = require('body-parser');
 const cors= require('cors');
-const port = process.env.PORT || 4000;
+
 // const datas =require('./datas');
 
 const datas = "mongodb+srv://murutestdb:Muru_1998@muru.ypd86.mongodb.net/billedgeprod?retryWrites=true&w=majority&appName=Muru";
@@ -11,7 +13,7 @@ const userRoure = require('./router/userRoute');
 // const invoicegen = require('./router/invoicegenRoute');
 const invoicegenRoute = require('./router/invoicegenRoute')
 const estimategenRoute = require('./router/estimateRoute');
-const app=express();
+
 app.use(bodyParser.json());
 app.use(cors());
 app.use((req, res, next) => {
@@ -40,7 +42,7 @@ app.use((req,res,next) =>{
 mongoose.connect(datas)
 .then(() =>{
   app.listen(port, () =>{
-    console.log("Server Running in "+ port);
+    console.log(`BillEdge app listening on port ${port}`)
 });
 }).catch( err =>{
   console.log(err);
