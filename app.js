@@ -1,13 +1,12 @@
 const express = require('express');
 const app=express();
 const port = process.env.PORT || 4000;
+const {mongoose} = require('mongoose');
+const dotenv = require("dotenv").config();
 const bodyParser = require('body-parser');
 const cors= require('cors');
 
-// const datas =require('./C');
-const datas = process.env.DATABASEURL;
-
-const {mongoose} = require('mongoose');
+const datas =process.env.MONGO_URI;
 
 const userRoure = require('./router/userRoute');
 // const invoicegen = require('./router/invoicegenRoute');
@@ -39,7 +38,7 @@ app.use((req,res,next) =>{
   res.json(("No data found"))
 });
 
-mongoose.connect(process.env.DATABASEURL)
+mongoose.connect(datas)
 .then(() =>{
   app.listen(port, () =>{
     console.log(`BillEdge app listening on port ${port}`)
