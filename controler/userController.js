@@ -106,7 +106,7 @@ const getCompanyBankDetails = async (req, res, next) => {
     }
     if (isCompanyBankDetails.length === 0) {
         //console.log('undefined');
-        res.status(224).json('Company Basic Details not found');
+        res.status(224).json('Company Bank Details not found');
     }
     else {
         res.status(200).json(isCompanyBankDetails);
