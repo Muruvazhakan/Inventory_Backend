@@ -186,13 +186,13 @@ const createorupdateinvoice = async (req, res, next) => {
             isexistinvoice.clientAdd=singleinvoice.clientAdd;
             isexistinvoice.clientName=singleinvoice.clientName;
             isexistinvoice.clientPhno=singleinvoice.clientPhno;
-            ctrate.clientName=singleinvoice.ctrate;
-            strate.clientPhno=singleinvoice.strate;
+            isexistinvoice.ctrate=singleinvoice.ctrate;
+            isexistinvoice.strate=singleinvoice.strate;
 
             try {
 
-                console.log('before isexistinvoice');
-                console.log(isexistinvoice);
+                // console.log('before isexistinvoice');
+                // console.log(isexistinvoice);
                 await isexistinvoice.save();
                 //  await invoiceDetails.findByIdAndUpdate();
                 // console.log(' after isexistinvoice');
