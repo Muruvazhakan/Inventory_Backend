@@ -87,21 +87,22 @@ const getallestimate = async (req, res, next) => {
 
 const createorupdateestimate = async (req, res, next) => {
     let allestimate = req.body.estimate;
-    //console.log(allestimate);
+    // console.log('allestimate');
+    // console.log(allestimate);
     let userid = req.params.userid;
     let singleestimate = null;
-    for (let i = 0; i < allestimate.length; i++) {
-        singleestimate = allestimate[i];
+    // for (let i = 0; i < allestimate.length; i++) {
+        singleestimate = allestimate;
         let estimate = null, isexistestimate, updatesexistestimate;
         //console.log(singleestimate);
         try {
-            updatesexistestimate = await EstimateDetails.find({ estimateid: singleestimate.estimateid });
+            updatesexistestimate = await EstimateDetails.find({ userid:userid, estimateid: singleestimate.estimateid });
 
         } catch (er) {
             throw new HttpError('error in exist search', 400);
         }
-        //console.log('updatesexistestimate');
-        //console.log(updatesexistestimate);
+        // console.log('updatesexistestimate');
+        // console.log(updatesexistestimate);
         // //console.log(updatesexistestimate.length);
         if (updatesexistestimate.length === 0) {
             estimate = new EstimateDetails({
@@ -160,7 +161,7 @@ const createorupdateestimate = async (req, res, next) => {
             }
 
         }
-    }
+    // }
     return res.status(200).json('estimation saved');
 
 }
