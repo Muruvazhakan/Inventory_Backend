@@ -148,6 +148,8 @@ const createorupdateinvoice = async (req, res, next) => {
                 clientAdd: singleinvoice.clientAdd,
                 clientName: singleinvoice.clientName,
                 clientPhno: singleinvoice.clientPhno,
+                ctrate: singleinvoice.ctrate,
+                strate: singleinvoice.strate,
             });
             // console.log('invoice');
             // console.log(invoice);
@@ -184,6 +186,8 @@ const createorupdateinvoice = async (req, res, next) => {
             isexistinvoice.clientAdd=singleinvoice.clientAdd;
             isexistinvoice.clientName=singleinvoice.clientName;
             isexistinvoice.clientPhno=singleinvoice.clientPhno;
+            ctrate.clientName=singleinvoice.ctrate;
+            strate.clientPhno=singleinvoice.strate;
 
             try {
 

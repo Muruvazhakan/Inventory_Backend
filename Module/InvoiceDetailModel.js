@@ -24,7 +24,9 @@ const invoiceDetailSchema = new schema({
     totalhsnamtwords: { type: String },
     clientName: { type: String },
     clientPhno: { type: String },
-    clientAdd: { type: String }
+    clientAdd: { type: String },
+    ctrate: { type: String },
+    strate: { type: String }
     
 });
 
