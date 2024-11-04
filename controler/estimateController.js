@@ -161,8 +161,8 @@ const createorupdateestimate = async (req, res, next) => {
 
             try {
 
-                // console.log('before isexistestimate');
-                // console.log(isexistestimate);
+                console.log('before isexistestimate');
+                console.log(isexistestimate);
                 await isexistestimate.save();
                 //  await EstimateDetails.findByIdAndUpdate();
                 //console.log(' after isexistestimate');
