@@ -118,11 +118,16 @@ const createorupdateestimate = async (req, res, next) => {
                 granttotalsqft: singleestimate.granttotalsqft,
                 userid: userid,
                 rows: singleestimate.rows,
-                columns: singleestimate.columns
+                columns: singleestimate.columns,
+                discountedcheck: singleestimate.discountedcheck, 
+                discountedText: singleestimate.discountedText, 
+                discountedTotalupvccost: singleestimate.discountedTotalupvccost, 
+                discountedTotalpvccost: singleestimate.discountedTotalpvccost,
+                discountedTotalwoodcost: singleestimate.discountedTotalwoodcost,
 
             });
-            //console.log('estimate');
-            //console.log(estimate);
+            // console.log('estimate');
+            // console.log(estimate);
             try {
 
                 await estimate.save({ upsert: true });
@@ -147,10 +152,17 @@ const createorupdateestimate = async (req, res, next) => {
 
             isexistestimate.rows = singleestimate.rows;
             isexistestimate.columns = singleestimate.columns;
+
+            isexistestimate.discountedText= singleestimate.discountedText; 
+            isexistestimate.discountedcheck= singleestimate.discountedcheck; 
+            isexistestimate.discountedTotalupvccost= singleestimate.discountedTotalupvccost; 
+            isexistestimate.discountedTotalpvccost= singleestimate.discountedTotalpvccost;
+            isexistestimate.discountedTotalwoodcost= singleestimate.discountedTotalwoodcost;
+
             try {
 
-                //console.log('before isexistestimate');
-                //console.log(isexistestimate);
+                // console.log('before isexistestimate');
+                // console.log(isexistestimate);
                 await isexistestimate.save();
                 //  await EstimateDetails.findByIdAndUpdate();
                 //console.log(' after isexistestimate');

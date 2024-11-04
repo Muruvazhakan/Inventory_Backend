@@ -15,7 +15,12 @@ const estimateDetailSchema = new schema({
     estimatedate1: { type: String },
     grandtotalupvccost: { type: String },
     grandtotalpvccost: { type: String },
-    grandtotalwoodcost: { type: String }
+    grandtotalwoodcost: { type: String },
+    discountedcheck: { type: String },
+    discountedText: { type: String },
+    discountedTotalupvccost: { type: String }, 
+    discountedTotalpvccost: { type: String }, 
+    discountedTotalwoodcost: { type: String }
 });
 
 const estimateDetailCounterSchema = new schema ({
