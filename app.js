@@ -6,6 +6,8 @@ const keyFilename = process.env.KEYFILENAME;
 
 const storage = new Storage({ projectId, keyFilename
  });
+ console.log("keyFilename");
+ console.log(keyFilename);
 const express = require('express');
 const app=express();
 const port = process.env.PORT || 4000;
