@@ -1,3 +1,4 @@
+
 const { v4: uuidv4 } = require("uuid");
 
 const { CompanyUser, CompanBankDetail, CompanyBasicDetail, CompanyTermsAndConditionDetail } = require('../Module/CompanyDetailModel');
@@ -214,7 +215,7 @@ const getCompanyBasicDetails = async (req, res, next) => {
     try {
         isCompanyBasicDetails = await CompanyBasicDetail.find({ userid: userid });
         // isCompanyBasicDetails = finduserpass(username, password);
-        //console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
+        console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
@@ -256,7 +257,7 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
                 companythankyou: basicdetail.companythankyou,
                 invoiceidcount: basicdetail.invoiceidcount,
                 estimateidcount: basicdetail.estimateidcount,
-                companyphotolocation:basicdetail.companyphotolocation
+                companyImage:basicdetail.companyImage
             });
             //console.log('req user input ' + isCompanyBasicDetails);
             await isCompanyBasicDetails.save();
@@ -281,8 +282,8 @@ const addOrModifyCompanyBasicDetails = async (req, res, next) => {
         existCompanyBasicDetails.companythankyou = basicdetail.companythankyou;
         existCompanyBasicDetails.invoiceidcount = basicdetail.invoiceidcount;
         existCompanyBasicDetails.estimateidcount = basicdetail.estimateidcount;
-        existCompanyBasicDetails.companyphotolocation = basicdetail.companyphotolocation;
-        //console.log('req the modified existCompanyBasicDetails ' + existCompanyBasicDetails);
+        existCompanyBasicDetails.companyImage = basicdetail.companyImage;
+        console.log('req the modified existCompanyBasicDetails ' + existCompanyBasicDetails);
         try {
             await existCompanyBasicDetails.save();
         } catch (er) {
@@ -351,6 +352,51 @@ const addOrModifyCompanyTermsAndConditionDetail = async (req, res, next) => {
     res.status(200).json('TermsAndCondition Details updated');
 }
 
+const uploadCompanyLogo = async (req, res, next) => {
+    console.log("intering");
+    const allTermsAndConditionDetails = req.body;
+    const userid = req.params.userid;
+    console.log(allTermsAndConditionDetails);
+    res.status(200).json('Image updated');
+}
+
+// const uploadCompanyLogo = async (req, res, next) => {
+//     // const companylogo = req.body;
+//     // const userid = req.params.userid;
+//     //  console.log(companylogo);//
+//     res.set('Access-Control-Allow-Origin', '*');
+//      console.log(req);
+
+//     //  async function uploadFile(bucketName, file, fileOutputName) {
+//     //     try {
+//     //         // Get a reference to the specified bucket
+//     //         const bucket = storage.bucket(bucketName);
+//     //         const storagepath = `BillEdge/CompanyLogo/${fileOutputName}`;
+//     //         // Upload the specified file to the bucket with the given destination name
+//     //         const ret = await bucket.upload(file, {
+//     //             destination: storagepath
+//     //         });
+    
+//     //         // Return the result of the upload operation
+//     //         return ret;
+//     //     } catch (error) {
+//     //         // Handle any errors that occur during the upload process
+//     //         console.error('Error:', error);
+//     //     }
+//     // }
+    
+//     // // Use an immediately-invoked function expression (IIFE) to call the uploadFile function
+//     // (async () => {
+//     //     // Call the uploadFile function with the specified parameters
+//     //     const ret = await uploadFile(process.env.BUCKET_NAME, 'test.txt', 'CodingWithAdo.txt');
+    
+//     //     // Log the result of the upload operation to the console
+//     //     console.log(ret);
+//     // })();
+
+//     res.status(200).json('got the request');
+// }
+exports.uploadCompanyLogo = uploadCompanyLogo;
 exports.findUser = findUser;
 exports.loginUser = loginUser;
 exports.signIn = signIn;
