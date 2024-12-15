@@ -6,21 +6,6 @@ const keyFilename = process.env.KEYFILENAME;
 
 const storage = new Storage({ projectId, keyFilename
  });
-// const storage = new Storage({ projectId, credentials:{
-//   "type": "service_account",
-//   "project_id": "helpone-9bf33",
-//   "private_key_id": "64e48296ae591f7e9ed3e20e4979ff874423efad",
-//   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD0Ey4RW5L5Tl5x\nk6mgwUenCA0ss3uYboF+UVWbAIhIgUMKa3yr5NfM+befiEPkODImHljknzhNZ7Uy\nt6zE/3xfbmrnT3CanjjbtZSl1w8JdRaBoRpbVmrId7UlSaWizNiiq93wmkQ5FeyF\nOVzR79liySyILb9XOVsBmjQSeKNPVdPR4c6CShYYllyb22AiOuGDiHMR3t1RrJdB\nNt4ah+MH/v2M8BpJNKVd7Smeo6VduWpqudpaQSrWEfBHwqEqZOCv0b0+L2N2zjm9\nwgKo4Zm7LbqPUy0utb+kGq13/NnQTPs3YjLfY9VukOu8OwLcpIUjcKrxEH8nxxYq\n80gUr+cLAgMBAAECggEABRqz2PeuiHu6uDvx86NlAXM1wXUQYwFD0YwXbqeDoQyL\nykZcuER+vWMFAp/bRo116FvWUEa+aw2XaJpJwGGZKn/AfEChrx/5GBmUitBC/wJn\nOEHrfCe3RPoOT5c4EMrDcS//SHPQ7Cr3xkatZaCO56TOQ2AB0CeqNqmIJEA3SMZz\nkeP2YbwwuEWYhmMTZtnHEnqVBTGYd+8SBHbT8CFjPBcs2HkqHM1WaFyPgOJxqELd\n8jQeuMBn4CectwEZhFJXNTuEM3TLr+DT70WU0k1MgMnqA5qUj8rWMiIYJrelvjs6\nmogAcMnzJJrhfpj6SbdVtoeAfYVgztY9nisvpIsJvQKBgQD3fKE/0y3+ta3gHRor\nqNaYDZ6R8vp4UdXduWd4JlbCiLHti4J7JiIzMTELbVzpA1SDVRGnECpz2nXUbTm4\niFyc7CF/B07k1L1xBRM//YzK7Wbm2nfjCmjWvhozuaquPmpRVwIrcmTj4Il3gO5D\nurSsnp1AR5+SYjEoxyZO8zWaRwKBgQD8eIE2+H8FRn7RIuzgj0MENY5sgOHhR6zF\nCUL/nc/bN4fP0uE2ZQ2zKc7qOhoy2RKiqJzToulwgRAlDYSVddJ76q2dlc60ab9U\n1ATE/qbfoqhP6h2yokfE6SkMR5H1RpRNFu8JQHS2EPkFna2MCsPj2dQXdS9Qj77S\nomdasfCrHQKBgG7ePyJniXBUlUsT3nh2j4PYfhPl5Lzn9EX629ZgXneRYxwGZnKi\nt6l1PQJggMHGAyM+hcTwogP6dtSuBbCcLdkCk1LjxD0Q7LjnzCLbhCoYRgPfFNv5\n+tNQoE5Ru5uJTHmZ39f0zCulmA+YC6T9zBiUid+U9nBOWrVo2cl+fKHbAoGBAODZ\ndcL+Vyncmc8qeqqYDIhwJjLuKb2YNv+Yewnqg5bqAtONLTRjlWruHjCupGyKtTUW\nU+2MVrjyyO0m9+CgeWARJqSFKf21fEhRNxo27WmYlKvvhpl0O9TcDsm35/7459Us\nSqEDva30ucNNpaVmZQXFF0X5ALWP/9PZ/ZBhj0TlAoGAd/5GQpaMZS+aeM/EcJLn\n/IZpj6gD/YCNSIAtSZwxcvlvc9hByR+Lf35UGCKQynrPrze2OQJYhx3YIFLAGh8p\n8HqiHviLv6I0U0eTP9+Z5PylqoRex9kLrfNI29W0xJb6d42frNVcv/i61ylJ3yb2\nNmA4zG8OsO0by7VM8lFnwbo=\n-----END PRIVATE KEY-----\n",
-//   "client_email": "helponestorageaccount@helpone-9bf33.iam.gserviceaccount.com",
-//   "client_id": "117512498385392120559",
-//   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-//   "token_uri": "https://oauth2.googleapis.com/token",
-//   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-//   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/helponestorageaccount%40helpone-9bf33.iam.gserviceaccount.com",
-//   "universe_domain": "googleapis.com"
-// }
-//  });
-
 const express = require('express');
 const app=express();
 const port = process.env.PORT || 4000;
