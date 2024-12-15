@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const projectId = process.env.PROJECT_ID;
 // const keyFilename = process.env.KEYFILENAME;
-const keyFilename = path.join('/secrets', 'helpone-9bf33-64e48296ae59.json');
+const keyFilename = path.join('/etc/secrets', 'helpone-9bf33-64e48296ae59.json');
 const storage = new Storage({ projectId, keyFilename
  });
  console.log("keyFilename");
