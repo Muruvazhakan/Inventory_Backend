@@ -4,8 +4,9 @@ const { OAuth2Client } = require('google-auth-library');
 const fs = require('fs');
 const path = require('path');
 const projectId = process.env.PROJECT_ID;
+const secrectfolder = process.env.SECRECT_FOLDER;
 // const keyFilename = process.env.KEYFILENAME;
-const keyFilename = path.join('/etc/secrets', 'helpone-9bf33-64e48296ae59.json');
+const keyFilename = path.join(secrectfolder, 'helpone-9bf33-64e48296ae59.json');
 const storage = new Storage({ projectId, keyFilename
  });
  console.log("keyFilename");
