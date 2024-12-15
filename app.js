@@ -1,9 +1,11 @@
 const { Storage } = require('@google-cloud/storage');
 require('dotenv').config();
-
+const { OAuth2Client } = require('google-auth-library');
+const fs = require('fs');
+const path = require('path');
 const projectId = process.env.PROJECT_ID;
-const keyFilename = process.env.KEYFILENAME;
-
+// const keyFilename = process.env.KEYFILENAME;
+const keyFilename = path.join('/secrets', 'helpone-9bf33-64e48296ae59.json');
 const storage = new Storage({ projectId, keyFilename
  });
  console.log("keyFilename");
@@ -15,7 +17,6 @@ const {mongoose} = require('mongoose');
 const dotenv = require("dotenv").config();
 const bodyParser = require('body-parser');
 const cors= require('cors');
-const path = require("path");
 const multer = require('multer');
 const multerStorage = multer.memoryStorage();
 const upload = multer({ storage: multerStorage });
