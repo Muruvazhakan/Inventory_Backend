@@ -8,6 +8,11 @@ const companyUserSchema = new schema({
     userid: {type:String, required: true},
     username: {type:String, required: true},
     password: {type:String, required: true},
+    role:{type:String},
+    type:{type:String},
+    registerdate:{type:Date},
+    enddate:{type:Date},
+    oraganisationName:{type:String}
 },{
     strictPopulate: false
 });
