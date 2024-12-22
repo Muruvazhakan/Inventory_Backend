@@ -32,23 +32,26 @@ const validateUser =  (userid) =>{
     else return false;
 }
 const fetchUserDetail = async(userid) =>{
-    let isUserexit, user;
+    let isUserexit;
     console.log("inside fetchUserDetail" + userid);
-    try {
-        isUserexit = await CompanyUser.find({ userid: userid });
-        // isUserexit = finduserpass(username, password);
-        //console.log('req the isUserexit find ' + isUserexit);
-    } catch (er) {
-        throw new HttpError('User find', 400);
-    }
-
-    if (isUserexit.length > 0) {
-        user =  isUserexit[0];
-        if(validateUser(isUserexit)){
-            return true
+    if(userid.length >0){
+        try {
+            isUserexit = await CompanyUser.find({ userid: userid });
+            // isUserexit = finduserpass(username, password);
+            //console.log('req the isUserexit find ' + isUserexit);
+        } catch (er) {
+            throw new HttpError('User find', 400);
         }
-        else return false;
+    
+        if (isUserexit.length > 0) {
+            user =  isUserexit[0];
+            if(validateUser(isUserexit)){
+                return true
+            }
+            else return false;
+        }
     }
+    
 }
 const loginUser = async (req, res, next) => {
     const { username, password } = req.body;
@@ -267,21 +270,30 @@ const addOrModifyCompanyBankDetails = async (req, res, next) => {
 const getCompanyBasicDetails = async (req, res, next) => {
     const userid = req.params.userid;
     let isCompanyBasicDetails;
-    try {
-        isCompanyBasicDetails = await CompanyBasicDetail.find({ userid: userid });
-        // isCompanyBasicDetails = finduserpass(username, password);
-        console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
-    } catch (er) {
-        throw new HttpError('User find', 400);
+    let checkUserExpiry = await fetchUserDetail(userid);
+    console.log(  " : checkUserExpiry inside getCompanyBasicDetails ");
+    console.log(checkUserExpiry);
+    if(checkUserExpiry){
+        res.status(250).json('User account Expired');
     }
-
-    if (isCompanyBasicDetails.length === 0) {
-        //console.log('undefined');
-        res.status(224).json('Company Basic Details not found');
+    else if(userid.length >0){
+        try {
+            isCompanyBasicDetails = await CompanyBasicDetail.find({ userid: userid });
+            // isCompanyBasicDetails = finduserpass(username, password);
+            console.log('req the isCompanyBasicDetails find ' + isCompanyBasicDetails);
+        } catch (er) {
+            throw new HttpError('User find', 400);
+        }
+    
+        if (isCompanyBasicDetails.length === 0) {
+            //console.log('undefined');
+            res.status(224).json('Company Basic Details not found');
+        }
+        else {
+            res.status(200).json(isCompanyBasicDetails);
+        }
     }
-    else {
-        res.status(200).json(isCompanyBasicDetails);
-    }
+   
 
 }
 
