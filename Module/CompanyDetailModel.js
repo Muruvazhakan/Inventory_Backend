@@ -17,6 +17,14 @@ const companyUserSchema = new schema({
     strictPopulate: false
 });
 
+const companyUserTokenCheckSchema = new schema({
+    tokenid:{type:String, required: true},
+    tokentype:{type:String, required: true},
+    tokenstatus:{type:String},
+    dummy1:{type:String},
+    dummy2:{type:String},
+    dummy3:{type:String},
+})
 const companyBasicDetailSchema = new schema({
     userid:{type:String, required: true},
     companyName: {type:String, required: true},
@@ -55,3 +63,4 @@ module.exports.CompanyUser = mongooes.model('CompanyUser',companyUserSchema);
 module.exports.CompanyBasicDetail = mongooes.model('companyBasicDetail',companyBasicDetailSchema);
 module.exports.CompanBankDetail = mongooes.model('CompanBankDetail',companyBankDetailSchema);
 module.exports.CompanyTermsAndConditionDetail = mongooes.model('CompanyTermsAndConditionDetail',companyTermsAndConditionDetailSchema);
+module.exports.CompanyUserTokenCheck = mongooes.model('CompanyUserTokenCheck',companyUserTokenCheckSchema);

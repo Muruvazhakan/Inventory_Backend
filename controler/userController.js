@@ -1,7 +1,7 @@
 
 const { v4: uuidv4 } = require("uuid");
 
-const { CompanyUser, CompanBankDetail, CompanyBasicDetail, CompanyTermsAndConditionDetail } = require('../Module/CompanyDetailModel');
+const { CompanyUser, CompanBankDetail, CompanyBasicDetail, CompanyTermsAndConditionDetail, CompanyUserTokenCheck } = require('../Module/CompanyDetailModel');
 
 // const  =  require('../Module/CompanyDetailModel');
 const HttpError = require("../Module/httpError");
@@ -21,20 +21,20 @@ const findUser = async (req, res, next) => {
     return res.status(200).json('got user request');
 }
 
-const validateUser =  (userid) =>{
+const validateUser = (userid) => {
     var datetime = new Date();
     console.log("inside Validator123");
-    console.log(userid[0].enddate + " , " + datetime + " :" +userid[0].enddate <= datetime);
+    console.log(userid[0].enddate + " , " + datetime + " :" + userid[0].enddate <= datetime);
     console.log(userid);
-    if (userid[0].enddate!= null && userid[0].enddate <= datetime){
+    if (userid[0].enddate != null && userid[0].enddate <= datetime) {
         return true;
     }
     else return false;
 }
-const fetchUserDetail = async(userid) =>{
+const fetchUserDetail = async (userid) => {
     let isUserexit;
     console.log("inside fetchUserDetail" + userid);
-    if(userid.length >0){
+    if (userid.length > 0) {
         try {
             isUserexit = await CompanyUser.find({ userid: userid });
             // isUserexit = finduserpass(username, password);
@@ -42,16 +42,16 @@ const fetchUserDetail = async(userid) =>{
         } catch (er) {
             throw new HttpError('User find', 400);
         }
-    
+
         if (isUserexit.length > 0) {
-            user =  isUserexit[0];
-            if(validateUser(isUserexit)){
+            user = isUserexit[0];
+            if (validateUser(isUserexit)) {
                 return true
             }
             else return false;
         }
     }
-    
+
 }
 const loginUser = async (req, res, next) => {
     const { username, password } = req.body;
@@ -76,22 +76,22 @@ const loginUser = async (req, res, next) => {
     }
     console.log(finduser);
     console.log("finduser");
-    let isValidUser= validateUser(finduser);
+    let isValidUser = validateUser(finduser);
     console.log(isValidUser + " isValidUser ");
     if (finduser.length === 0) {
         //console.log('undefined');
         res.status(224).json('not found');
-    } else if (validateUser(finduser)){
+    } else if (validateUser(finduser)) {
         console.log("inside validateUser login");
         res.status(250).json('User account Expired');
     }
-     else {
+    else {
         res.status(200).json(finduser[0].userid);
     }
 };
 
 const signIn = async (req, res, next) => {
-    const { username, password, role, type, oraganisationName } = req.body;
+    const { username, password, role, type, oraganisationName, tokenid } = req.body;
     console.log(req.body);
     //console.log('get ' + username + password);
     // let finduser = finduserpass(username, password);
@@ -102,53 +102,79 @@ const signIn = async (req, res, next) => {
     //     res.status(224).json('User alreay exist');
     // }
 
+    let isUserexit, user, isValidToken, validtokendet;
 
-
-    let isUserexit, user;
     try {
-        isUserexit = await CompanyUser.find({ username: username });
+        isValidToken = await CompanyUserTokenCheck.find({ tokenid: tokenid, tokentype: type});
         // isUserexit = finduserpass(username, password);
-        console.log('req the isUserexit find ' + isUserexit);
+        console.log('req the isValidToken find ' + isValidToken);
     } catch (er) {
         throw new HttpError('User find', 400);
     }
-    if (isUserexit.length === 0) {
-        console.log('isUserexit');
-        try {
-
-            let registerdates, enddates;
-            let datetime = new Date();
-            let nexttime = new Date();
-            registerdates = datetime;
-
-            if (type == "temp") {
-                enddates = nexttime.setDate(nexttime.getDate() + 1);
-            }
-            else {
-                enddates = nexttime.setDate(nexttime.getDate() + 100000);
-            }
-            console.log('datetime ' + registerdates + enddates);
-            user = new CompanyUser({
-                userid: uuidv4(),
-                username: username,
-                password: password,
-                type:type,
-                role:role,
-                oraganisationName:oraganisationName,
-                registerdate: registerdates,
-                enddate:enddates
-            });
-            console.log('req user input ' + user);
-            await user.save();
-            console.log('req the isUserexit ' + isUserexit);
-        } catch (er) {
-            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-            return res.status(400).json("error " + er);
-        }
-        return res.status(201).json(user.userid);
+    if (isValidToken.length === 0) {
+        return res.status(250).json("Invalid token");
+    }
+    else if(isValidToken[0].tokenstatus !="Active"){
+        return res.status(250).json("Token id " + tokenid + " already used.");
     }
     else {
-        res.status(200).json('User already exist');
+        validtokendet = isValidToken[0];
+
+        try {
+            isUserexit = await CompanyUser.find({ username: username });
+            // isUserexit = finduserpass(username, password);
+            console.log('req the isUserexit find ' + isUserexit);
+        } catch (er) {
+            throw new HttpError('User find', 400);
+        }
+        if (isUserexit.length === 0) {
+            console.log('isUserexit');
+            try {
+
+                let registerdates, enddates;
+                let datetime = new Date();
+                let nexttime = new Date();
+                registerdates = datetime;
+
+                if (type == "temp") {
+                    enddates = nexttime.setDate(nexttime.getDate() + 1);
+                }
+                else {
+                    enddates = nexttime.setDate(nexttime.getDate() + 100000);
+                }
+                console.log('datetime ' + registerdates + enddates);
+                user = new CompanyUser({
+                    userid: uuidv4(),
+                    username: username,
+                    password: password,
+                    type: type,
+                    role: role,
+                    oraganisationName: oraganisationName,
+                    registerdate: registerdates,
+                    enddate: enddates
+                });
+                console.log('req user input ' + user);
+                await user.save();
+
+                console.log('req the isUserexit ' + isUserexit);
+                validtokendet.tokenstatus = "Used";
+                try {
+                    await validtokendet.save();
+                } catch (er) {
+                    // return next(new HttpError('error in DB connection in CompanyBasicDetails process'+er,404));
+                    return res.status(400).json("error in updating token status " + er);
+                }
+                // validtokendet
+            } catch (er) {
+                // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+                return res.status(400).json("error in user creation " + er);
+            }
+            return res.status(201).json(user.userid);
+        }
+
+        else {
+            res.status(200).json('User already exist');
+        }
     }
 
 }
@@ -271,12 +297,12 @@ const getCompanyBasicDetails = async (req, res, next) => {
     const userid = req.params.userid;
     let isCompanyBasicDetails;
     let checkUserExpiry = await fetchUserDetail(userid);
-    console.log(  " : checkUserExpiry inside getCompanyBasicDetails ");
+    console.log(" : checkUserExpiry inside getCompanyBasicDetails ");
     console.log(checkUserExpiry);
-    if(checkUserExpiry){
+    if (checkUserExpiry) {
         res.status(250).json('User account Expired');
     }
-    else if(userid.length >0){
+    else if (userid.length > 0) {
         try {
             isCompanyBasicDetails = await CompanyBasicDetail.find({ userid: userid });
             // isCompanyBasicDetails = finduserpass(username, password);
@@ -284,7 +310,7 @@ const getCompanyBasicDetails = async (req, res, next) => {
         } catch (er) {
             throw new HttpError('User find', 400);
         }
-    
+
         if (isCompanyBasicDetails.length === 0) {
             //console.log('undefined');
             res.status(224).json('Company Basic Details not found');
@@ -293,7 +319,7 @@ const getCompanyBasicDetails = async (req, res, next) => {
             res.status(200).json(isCompanyBasicDetails);
         }
     }
-   
+
 
 }
 
