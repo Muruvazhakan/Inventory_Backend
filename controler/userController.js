@@ -158,6 +158,8 @@ const signIn = async (req, res, next) => {
 
                 console.log('req the isUserexit ' + isUserexit);
                 validtokendet.tokenstatus = "Used";
+                var activatedTime = new Date();
+                validtokendet.activatedTimeStamp = activatedTime;
                 try {
                     await validtokendet.save();
                 } catch (er) {

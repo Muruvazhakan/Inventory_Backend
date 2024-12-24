@@ -21,6 +21,7 @@ const companyUserTokenCheckSchema = new schema({
     tokenid:{type:String, required: true},
     tokentype:{type:String, required: true},
     tokenstatus:{type:String},
+    activatedTimeStamp:{type:Date},
     dummy1:{type:String},
     dummy2:{type:String},
     dummy3:{type:String},
