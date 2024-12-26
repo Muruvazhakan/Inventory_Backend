@@ -1,7 +1,7 @@
 {
-  "name": "billedgebe",
+  "name": "AssetSyncbackennd",
   "version": "1.0.0",
-  "description": "backend for Billedge application",
+  "description": "AssetSyncs backend application",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -29,6 +29,7 @@ const userImageRoute = require('./controler/userController');
 // const invoicegen = require('./router/invoicegenRoute');
 const invoicegenRoute = require('./router/invoicegenRoute')
 const estimategenRoute = require('./router/estimateRoute');
+const stockRoute = require('./router/stockRoute');
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -70,7 +71,7 @@ app.use((req, res, next) => {
       try {
           // Get a reference to the specified bucket
           const bucket = storage.bucket(process.env.BUCKET_NAME);
-          const storagepath = `BillEdge/CompanyLogo/${req.body.filename}`;
+          const storagepath = `AssetSync/CompanyLogo/${req.body.filename}`;
 
           const blob = bucket.file(storagepath);
           console.log("storagepath ");
@@ -106,47 +107,9 @@ app.use((req, res, next) => {
   
   });
 
-  //  app.post("/upload", upload.single("file"), async (req, res) => {
-  //   if (!req.file) {
-  //     return res.status(400).send("No file uploaded.");
-  //   }
-  
-  //   const file = req.file;
-  //   const fileName = `${Date.now()}-${file.originalname}`; // Use current timestamp to avoid name clashes
-  //   const storagePath = `uploads/${fileName}`;  // This is the path inside your GCS bucket
-    
-  //   try {
-
-  //     const blob = bucket.file(fileName);
-  //     const blobStream = blob.createWriteStream();
-  //     blobStream.on('finish',() =>{
-  //       res.status(200).send("Sucsess");
-  //     })
-  //     blobStream.end(req.file.buffer);
-  //     // Upload the file to Google Cloud Storage using bucket.upload()
-  //     // const ret = await bucket.upload(file.buffer, {
-  //     //   destination: storagePath,  // Set the destination path in your bucket
-  //     //   metadata: {
-  //     //     contentType: file.mimetype,
-  //     //   },
-  //     // });
-  
-  //     // Generate a public URL for the uploaded file
-  //     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${storagePath}`;
-  
-  //     // res.status(200).send({
-  //     //   message: "File uploaded successfully!",
-  //     //   fileUrl: publicUrl,  // Return the URL of the uploaded file
-  //     // });
-  //   } catch (err) {
-  //     console.error("Error uploading file:", err);
-  //     res.status(500).send("Error uploading file.");
-  //   }
-  // });
-
 app.use('/user/',userRoure);
 
-app.use('/invoice/',invoicegenRoute);
+app.use('/stock/',stockRoute);
 app.use('/estimate/',estimategenRoute);
 
 app.use((req,res,next) =>{
@@ -157,7 +120,7 @@ app.use((req,res,next) =>{
 mongoose.connect(datas)
 .then(() =>{
   app.listen(port, () =>{
-    console.log(`BillEdge app listening on port ${port}`)
+    console.log(`AssetSync app listening on port ${port}`)
 });
 }).catch( err =>{
   console.log(err);
