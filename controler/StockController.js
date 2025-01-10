@@ -1,4 +1,4 @@
-const { AllStockDetailSchema } = require("../Module/StockDetailMode");
+const { AllStockDetailSchema, StockDetails, StockDeatailCounter, ClientDetailsSchema, SalestockDetailCounter, AllSalesStockDetailSchema, SaleStockDetailSchema } = require("../Module/StockDetailMode");
 const HttpError = require("../Module/httpError");
 const { InvoiceDetail, InvoiceDetailCounter } = require("../Module/InvoiceDetailModel");
 
@@ -8,7 +8,7 @@ const getAllStockdata = async (req, res, next) => {
 
     let stocklist;
     try {
-        stocklist = await AllStockDetailSchema.find({ userid: inputeuserid });
+        stocklist = await AllStockDetailSchema.find({ userid: inputuserid });
         if (stocklist.length !== 0) {
             return res.status(200).json(stocklist);
         }
@@ -20,66 +20,279 @@ const getAllStockdata = async (req, res, next) => {
     }
 }
 
+const getAllHistoryStockdata = async (req, res, next) => {
+    let inputuserid = req.params.userid;
+    console.log('get getAllStockdata' + inputuserid);
+
+    let stockhistorylist;
+    try {
+        stockhistorylist = await StockDetails.find({ userid: inputuserid });
+        if (stockhistorylist.length !== 0) {
+            return res.status(200).json(stockhistorylist);
+        }
+        else {
+            return res.status(204).json('No Stock are added');
+        }
+    } catch (er) {
+        throw new HttpError('error in search user', 400);
+    }
+}
+
+const getAllHistorySalesStockdata = async (req, res, next) => {
+    let inputuserid = req.params.userid;
+    console.log('get getAllHistorySalesStockdata' + inputuserid);
+
+    let salesstockhistorylist;
+    try {
+        salesstockhistorylist = await SaleStockDetailSchema.find({ userid: inputuserid });
+        if (salesstockhistorylist.length !== 0) {
+            return res.status(200).json(salesstockhistorylist);
+        }
+        else {
+            return res.status(204).json('No Sales Stock are added');
+        }
+    } catch (er) {
+        throw new HttpError('error in search user', 400);
+    }
+}
+
+
+const getAllClientdata = async (req, res, next) => {
+    let inputuserid = req.params.userid;
+    console.log('get getAllClientdata' + inputuserid);
+
+    let stocklist;
+    try {
+        stocklist = await ClientDetailsSchema.find({ userid: inputuserid });
+        if (stocklist.length !== 0) {
+            console.log('getAllClientdata' + stocklist);
+            return res.status(200).json(stocklist);
+        }
+        else {
+            return res.status(204).json('No clients are added');
+        }
+    } catch (er) {
+        throw new HttpError('error in search user', 400);
+    }
+}
+
+
+const addOrUpdateStock = async (props, userid, type) => {
+    let singlestock, stock = null, isexiststock, updatesexiststock;
+    var datetime = new Date();
+    // let dbServerr = (type =="add" ? AllStockDetailSchema : AllSalesStockDetailSchema);
+    let dbServerr = AllStockDetailSchema;
+    for (let i = 0; i < props.length; i++) {
+        singlestock = props[i];
+        // console.log('singlestock ....');
+        // console.log(singlestock);
+        try {
+            updatesexiststock = await dbServerr.find({ userid: userid, productid: singlestock.productid });
+
+        } catch (er) {
+            return ("error in exist search");
+        }
+        // console.log('updatesexiststock');
+        // console.log(updatesexiststock);
+        // console.log(updatesexiststock.length);
+        if (updatesexiststock.length === 0) {
+            stock = new dbServerr({
+                userid: userid,
+                productid: singlestock.productid,
+                quantity: singlestock.quantity,
+                desc: singlestock.desc,
+                rate: singlestock.rate,
+                lastupdatedstockdate: datetime,
+            });
+            // console.log('stock');
+            // console.log(stock);
+            try {
+
+                await stock.save({ upsert: true });
+            } catch (er) {
+                // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+                return ("error in new saving");
+            }
+        }
+        else {
+            isexiststock = updatesexiststock[0];
+            //  console.log('isexiststock');
+            //  console.log(isexiststock); 40/3
+            let num = 1, avgrate = 0, preamt = 0, currentamt = 0, totamt = 0, totqyt = 0;
+            console.log('isexiststock' + isexiststock);
+            preamt = (isexiststock.rate * 1 * isexiststock.quantity * 1);
+            currentamt = (singlestock.rate * 1 * singlestock.quantity * 1);
+            //  console.log('singlestock' + singlestock );
+            console.log(singlestock);
+            console.log("type^^^^ " + type);
+            console.log(' before avgrate' + avgrate);
+            if (type == "add") {
+                totamt = preamt + currentamt;
+                totqyt = ((singlestock.quantity * 1) + (isexiststock.quantity * 1));
+                if (totqyt != 0)
+                    avgrate = ((totamt) / (totqyt)).toFixed(2);
+                console.log('after avgrate' + avgrate);
+                isexiststock.rate = avgrate;
+            } else if (type == "sale") {
+                totqyt = ((singlestock.quantity * -1) + (isexiststock.quantity * 1));
+                totamt = preamt - currentamt;
+            }
+            isexiststock.quantity = totqyt;
+            isexiststock.desc = singlestock.desc;
+            isexiststock.lastupdatedstockdate = datetime;
+            try {
+
+                console.log('before isexiststock');
+                console.log(isexiststock);
+                await isexiststock.save();
+                //  await invoiceDetails.findByIdAndUpdate();
+                // console.log(' after isexistinvoice');
+                // console.log(isexistinvoice);
+            } catch (er) {
+                // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+                return ("error in updating");
+            }
+        }
+    }
+    return ("updated");
+}
+
+const addOrUpdateClient = async (props, userid, clientid, type) => {
+    let singleclient, client = null, isexistclient, updatesexistclient;
+    var datetime = new Date();
+    console.log('addOrUpdateClient  ....');
+    console.log(props);
+
+    singleclient = props;
+    console.log('addOrUpdateClient  ....');
+    console.log(singleclient);
+    try {
+        updatesexistclient = await ClientDetailsSchema.find({ userid: userid, clientid: clientid });
+
+    } catch (er) {
+        return ("error in exist search");
+    }
+    console.log('updatesexistclient');
+    console.log(updatesexistclient);
+    console.log(updatesexistclient.length);
+    if (updatesexistclient.length === 0) {
+        client = new ClientDetailsSchema({
+            userid: userid,
+            clientid: clientid,
+            clientName: singleclient.clientName,
+            clientPhno: singleclient.clientPhno,
+            clientAdd: singleclient.clientAdd,
+            lastupdatedclientdate: datetime,
+        });
+        // console.log('stock');
+        // console.log(stock);
+        try {
+
+            await client.save({ upsert: true });
+        } catch (er) {
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return ("error in new saving client detail");
+        }
+    }
+    else {
+        isexistclient = updatesexistclient[0];
+        isexistclient.clientName = singleclient.clientName;
+        isexistclient.clientPhno = singleclient.clientPhno;
+        isexistclient.clientAdd = singleclient.clientAdd;
+        isexistclient.lastupdatedclientdate = datetime;
+
+        try {
+
+            // console.log('before isexistclient');
+            // console.log(isexistclient);
+            await isexistclient.save();
+            //  await invoiceDetails.findByIdAndUpdate();
+            // console.log(' after isexistinvoice');
+            // console.log(isexistinvoice);
+        } catch (er) {
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return ("error in updating client detail");
+        }
+    }
+    return ("updated");
+}
 const addOrUpdateStockdata = async (req, res, next) => {
 
-    let allstock = req.body.stock;
+    let stocklist = req.body.stock.stocklist;
+    let clientid = req.body.stock.clientid;
+    let stockidcount = req.body.stock.stockidcount;
+    // console.log("req.body");
+    // console.log(req.body);
+    let stockupdate = false;
+    // console.log("stocklist");
+    // console.log(stocklist);
+    // console.log(req.body.stock);
     let headertext = req.body.stock.authorization;
     if (headertext !== "stockrequest") {
         return res.status(400).json("Authorization restricted");
     }
-    // console.log("req.body");
-    // console.log(req.body);
+
     let userid = req.params.userid;
-    let singlestock = null;
+    let singlestock = req.body.stock;
     // console.log("allstock ");
     // console.log(singlestock);
-    singlestock = allstock;
-    let stock = null, isexiststock, updatesexiststock;
+    // singlestock = allstock;
+    let stock = null, isexiststock, updatesexiststock,beforeisexistsalestock,existstock=false;
+    
+    let responClientUpdate = await addOrUpdateClient(req.body.stock, userid, clientid, "add")
+    console.log('responClientUpdate');
+    console.log(responClientUpdate);
+    if (responClientUpdate != "updated")
+        return res.status(400).json("error in " + responClientUpdate);
+
     // console.log('singlestock');
     // console.log(singlestock);
     try {
-        updatesexiststock = await AllStockDetailSchema.find({ userid: userid, id: singlestock.stockid });
-
+        updatesexiststock = await StockDetails.find({ userid: userid, stockid: singlestock.stockid });
     } catch (er) {
         throw new HttpError('error in exist search', 400);
     }
-    // console.log('updatesexiststock');
-    // console.log(updatesexiststock);
-    // console.log(updatesexiststock.length);
+    console.log('updatesexiststock');
+    console.log(updatesexiststock);
+    console.log(updatesexiststock.length);
     var datetime = new Date();
     if (updatesexiststock.length === 0) {
-       
-        stock = new AllStockDetailSchema({
+        stock = new StockDetails({
             userid: userid,
-            quantity: singlestock.quantity,
-            desc: singlestock.quantity,
-            rate: singlestock.rate,
+            rows: singlestock.stocklist,
+            totalamt: singlestock.totalamt,
+            stockid: singlestock.stockid,
+            clientid: singlestock.clientid,
             lastupdatedstockdate: datetime,
+            stockdate: singlestock.stockdate
         });
-        // console.log('invoice');
-        // console.log(invoice);
+        console.log('stock');
+        console.log(stock);
         try {
 
-            await invoice.save({ upsert: true });
+            await stock.save({ upsert: true });
         } catch (er) {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
             return res.status(400).json("error in new saving" + er);
         }
-
+        stockupdate = true;
     }
     else {
-        isexiststock = updatesexiststock[0];
-        //  console.log('isexiststock');
-        //  console.log(isexiststock);
-        isexiststock.quantity = singlestock.quantity;
-        isexiststock.desc = singlestock.desc;
-        isexiststock.rate = singlestock.rate;
-        isexiststock.lastupdatedstockdate = datetime;
 
+        isexiststock = updatesexiststock[0];
+        beforeisexistsalestock = JSON.parse(JSON.stringify(isexiststock));;
+        existstock = true;
+        //  console.log('isexiststock');
+        //  console.log(isexiststock); 
+        isexiststock.rows = singlestock.stocklist,
+            isexiststock.totalamt = singlestock.totalamt;
+        isexiststock.clientid = singlestock.clientid;
+        isexiststock.lastupdatedstockdate = datetime;
+        isexiststock.stockdate = singlestock.stockdate;
         try {
 
-            // console.log('before isexistinvoice');
-            // console.log(isexistinvoice);
+            // console.log('before isexiststock');
+            // console.log(isexiststock);
             await isexiststock.save();
             //  await invoiceDetails.findByIdAndUpdate();
             // console.log(' after isexistinvoice');
@@ -88,28 +301,272 @@ const addOrUpdateStockdata = async (req, res, next) => {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
             return res.status(400).json("error in updating" + er);
         }
-
+        // stockupdate=true;
     }
 
-    return res.status(200).json('invoice saved');
+    if (existstock) {
+        let accumalatevalue = [];
+        console.log("$$$$$$ beforeisexistsalestock ????? ");
+        console.log(beforeisexistsalestock);
+        let isexistsales = beforeisexistsalestock.rows;
+        let compainedvalue = [...stocklist,...isexistsales];
+        console.log("$$$$$$ isexistsales ????? ");
+        console.log(isexistsales);
+
+        let singllistofsales = compainedvalue.map(innerrows => {
+            console.log("innerrows");
+            console.log(innerrows);
+            let found = false;
+            if (accumalatevalue.length > 0) {
+              for (let i = 0; i < accumalatevalue.length; i++) {
+                if (accumalatevalue[i].productid === innerrows.productid) {
+                  found = true;
+                  accumalatevalue[i].quantity = (accumalatevalue[i].quantity * 1) - (innerrows.quantity * 1);
+                  console.log(" found &&&");
+                  console.log(accumalatevalue);
+                }
+              }
+              if (!found) {
+                accumalatevalue = [...accumalatevalue, innerrows];
+                console.log("nt found &&&");
+              }
+            } else {
+              accumalatevalue = [innerrows];
+              console.log("else &&&");
+            }
+            console.log("accumalatevalue &&&");
+            console.log(accumalatevalue);
+            // return accumalatevalue;
+          });
+        console.log('accumalatevalue add stocks');
+        console.log(accumalatevalue);
+        let responUpdatesale = await addOrUpdateStock(accumalatevalue, userid, "add");
+        console.log('responUpdate sale stocks');
+        console.log(responUpdatesale);
+        if (responUpdatesale != "updated")
+            return res.status(400).json("error in " + responUpdatesale);
+    } else {
+        let responUpdate = await addOrUpdateStock(stocklist, userid, "add");
+        console.log('%%%responUpdate sale stocks %%%%');
+        console.log(responUpdate);
+        if (responUpdate != "updated")
+            return res.status(400).json("error in " + responUpdate);
+    }
+    if (stockupdate) {
+        let results = await incremeantstockid(userid, stockidcount);
+        //    console.log('results');
+        //    console.log(results);
+        if (results !== "updated")
+            return res.status(400).json("error in " + results);
+    }
+
+    return res.status(200).json('stocks saved');
 
 }
 
-const addSaleStockdata = async (req, res, next) => {
+const addOrUpdateSaleStockdata = async (req, res, next) => {
+    let salestocklist = req.body.salestock.salestocklist;
+    let clientid = req.body.salestock.clientid;
+    let salestockidcount = req.body.salestock.salestockidcount;
 
+    console.log("req.body");
+    console.log(req.body);
+    let salestockupdate = false, existstock = false;
+    console.log("salestocklist");
+    console.log(salestocklist);
+    console.log(req.body.salestock);
+    let headertext = req.body.salestock.authorization;
+    if (headertext !== "stockrequest") {
+        return res.status(400).json("Authorization restricted");
+    }
+
+    let userid = req.params.userid;
+    let singlesalestock = req.body.salestock;
+    // console.log("allsalestock ");
+    // console.log(singlesalestock);
+    // singlesalestock = allsalestock;
+    let salestock = null, isexistsalestock, updatesexistsalestock, beforeisexistsalestock;
+
+
+    let responClientUpdate = await addOrUpdateClient(req.body.salestock, userid, clientid, "add")
+    console.log('responClientUpdate');
+    console.log(responClientUpdate);
+
+    if (responClientUpdate != "updated")
+        return res.status(400).json("error in " + responClientUpdate);
+
+    console.log('singlesalestock');
+    console.log(singlesalestock);
+    try {
+        updatesexistsalestock = await SaleStockDetailSchema.find({ userid: userid, salestockid: singlesalestock.salestockid });
+    } catch (er) {
+        throw new HttpError('error in exist search', 400);
+    }
+    console.log('updatesexistsalestock');
+    console.log(updatesexistsalestock);
+    console.log(updatesexistsalestock.length);
+
+    var datetime = new Date();
+    if (updatesexistsalestock.length === 0) {
+        salestock = new SaleStockDetailSchema({
+            userid: userid,
+            rows: singlesalestock.salestocklist,
+            totalsalesamt: singlesalestock.totalsalesamt,
+            salestockid: singlesalestock.salestockid,
+            clientid: singlesalestock.clientid,
+            lastupdatedsalestockdate: datetime,
+            salestockdate: singlesalestock.salestockdate
+        });
+        console.log('salestock');
+        console.log(salestock);
+        try {
+
+            await salestock.save({ upsert: true });
+        } catch (er) {
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return res.status(400).json("error in new saving" + er);
+        }
+        // return res.status(200).json('sale salestocks saved');
+        salestockupdate = true;
+    }
+    else {
+        isexistsalestock = updatesexistsalestock[0];
+        beforeisexistsalestock = JSON.parse(JSON.stringify(isexistsalestock));;
+        existstock = true;
+        console.log('isexistsalestock');
+        console.log(isexistsalestock);
+        isexistsalestock.rows = singlesalestock.salestocklist;
+        isexistsalestock.totalsalesamt = singlesalestock.totalsalesamt;
+        isexistsalestock.clientid = singlesalestock.clientid;
+        isexistsalestock.lastupdatedsalestockdate = datetime;
+        isexistsalestock.salestockdate = singlesalestock.salestockdate;
+        try {
+
+            console.log('before isexistsalestock');
+            console.log(isexistsalestock);
+            await isexistsalestock.save();
+
+        } catch (er) {
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return res.status(400).json("error in updating" + er);
+        }
+        salestockupdate = true;
+    }
+    if (existstock) {
+        let accumalatevalue = [];
+        console.log("$$$$$$ beforeisexistsalestock ????? ");
+        console.log(beforeisexistsalestock);
+        let isexistsales = beforeisexistsalestock.rows;
+        let compainedvalue = [...salestocklist,...isexistsales];
+        console.log("$$$$$$ isexistsales ????? ");
+        console.log(isexistsales);
+
+        let singllistofsales = compainedvalue.map(innerrows => {
+            console.log("innerrows");
+            console.log(innerrows);
+            let found = false;
+            if (accumalatevalue.length > 0) {
+              for (let i = 0; i < accumalatevalue.length; i++) {
+                if (accumalatevalue[i].productid === innerrows.productid) {
+                  found = true;
+                  accumalatevalue[i].quantity = (accumalatevalue[i].quantity * 1) - (innerrows.quantity * 1);
+                  console.log(" found &&&");
+                  console.log(accumalatevalue);
+                }
+              }
+              if (!found) {
+                accumalatevalue = [...accumalatevalue, innerrows];
+                console.log("nt found &&&");
+              }
+            } else {
+              accumalatevalue = [innerrows];
+              console.log("else &&&");
+            }
+            console.log("accumalatevalue &&&");
+            console.log(accumalatevalue);
+            // return accumalatevalue;
+          });
+
+        // for (let i = 0; i < salestocklist.length; i++) {
+        //     let found = false;
+        //     let currentexistsales;
+        //     console.log("$$$$$$ salestocklist &&&&");
+        //     console.log(salestocklist);
+
+        //     for (let j = 0; j < isexistsales.length; j++) {
+        //         console.log("isexistsales &&&&");
+        //         console.log(isexistsales);
+        //         if (salestocklist[i].productid == isexistsales[j].productid) {
+        //             found = true;
+        //             salestocklist[i].quantity = Math.abs((salestocklist[i].quantity * 1) - (isexistsales[j].quantity * 1));
+        //             console.log("******salestocklist[i].quantity &&&&");
+        //             console.log(salestocklist[i]);
+        //         }
+        //     }
+        //     if (found)
+        //         accumalatevalue = [...accumalatevalue, salestocklist[i]];
+        //     else
+        //         accumalatevalue = [...accumalatevalue, isexistsales[i]];
+        // }
+        // let responUpdateadd = await addOrUpdateStock(isexistsalestock.rows, userid, "add");
+        console.log('accumalatevalue add stocks');
+        console.log(accumalatevalue);
+        let responUpdatesale = await addOrUpdateStock(accumalatevalue, userid, "sale");
+        console.log('responUpdate sale stocks');
+        console.log(responUpdatesale);
+        if (responUpdatesale != "updated")
+            return res.status(400).json("error in " + responUpdatesale);
+    } else {
+        let responUpdate = await addOrUpdateStock(salestocklist, userid, "sale");
+        console.log('%%%responUpdate sale stocks %%%%');
+        console.log(responUpdate);
+        if (responUpdate != "updated")
+            return res.status(400).json("error in " + responUpdate);
+    }
+
+    if (salestockupdate) {
+        let results = await incremeantsalestockid(userid, salestockidcount);
+        console.log('results');
+        console.log(results);
+        if (results !== "updated")
+            return res.status(400).json("error in " + results);
+    }
+
+    return res.status(200).json('sale salestocks saved');
 }
-const getInvoiceid = async (req, res, next) => {
+
+const getstockid = async (req, res, next) => {
     let inputuserid = req.params.userid;
     let headertext = req.body.headertext;
-    let invoiceid;
+    let stockid;
     try {
-        invoiceid = await InvoiceDetailCounter.find({ userid: inputuserid });
+        stockid = await StockDeatailCounter.find({ userid: inputuserid });
 
-        if (invoiceid.length !== 0) {
-            return res.status(200).json(invoiceid[0].invoicedeatilcount);
+        if (stockid.length !== 0) {
+            return res.status(200).json(stockid[0].stockdeatilcount);
         }
         else {
-            return res.status(204).json('No invoice count is registered');
+            return res.status(204).json('No stock count is registered');
+        }
+    } catch (er) {
+        throw new HttpError('error in search user', 400);
+    }
+
+
+    // console.log('get invoice');
+}
+const getsalesstockid = async (req, res, next) => {
+    let inputuserid = req.params.userid;
+    let headertext = req.body.headertext;
+    let salestockid;
+    try {
+        salestockid = await SalestockDetailCounter.find({ userid: inputuserid });
+
+        if (salestockid.length !== 0) {
+            return res.status(200).json(salestockid[0].salestockdeatilcount);
+        }
+        else {
+            return res.status(204).json('No stock count is registered');
         }
     } catch (er) {
         throw new HttpError('error in search user', 400);
@@ -119,164 +576,96 @@ const getInvoiceid = async (req, res, next) => {
     // console.log('get invoice');
 }
 
-const incremeantinvoiceid = async (req, res, next) => {
-    let inputeuserid = req.params.userid;
-    let invoiceids = req.body.invoicecount;
-    let headertext = req.body.headertext;
-    console.log('invoiceids');
-    console.log(invoiceids);
-    let invoiceidvalue, finalsave;
+const incremeantsalestockid = async (userid, salestockidcount) => {
+    let inputeuserid = userid;
+    let salestockidvalue, finalsave;
     try {
-        invoiceidvalue = await InvoiceDetailCounter.find({ userid: inputeuserid });
+        salestockidvalue = await SalestockDetailCounter.find({ userid: inputeuserid });
     } catch (er) {
-        throw new HttpError('error in search user', 400);
+        return ("exist search");
     }
-    console.log('invoiceidvalue');
-    console.log(invoiceidvalue);
-    if (invoiceidvalue.length > 0) {
-        finalsave = invoiceidvalue[0];
+    console.log('salestockidvalue');
+    console.log(salestockidvalue);
+    var datetime = new Date();
+    if (salestockidvalue.length > 0) {
+        finalsave = salestockidvalue[0];
+        finalsave.date = datetime;
         console.log('inside');
-        finalsave.invoicedeatilcount = invoiceids;
-        //console.log(finalsave);
+        finalsave.salestockdeatilcount = salestockidcount;
+        console.log(finalsave);
         try {
             await finalsave.save({ upsert: true });
         } catch (er) {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-            return res.status(400).json("error " + er);
+            return ("error in exist search");
         }
     }
     else {
-        //console.log('else');
-        finalsave = new InvoiceDetailCounter({
+        console.log('else');
+        finalsave = new SalestockDetailCounter({
             userid: inputeuserid,
-            invoicedeatilcount: invoiceids,
+            salestockdeatilcount: stockcount,
+            date: datetime,
         });
         try {
 
             await finalsave.save({ upsert: true });
         } catch (er) {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-            return res.status(400).json("error in new saving" + er);
+            return ("error in exist search");
         }
     }
-
-    return res.status(200).json(finalsave);
+    return ("updated");
 }
-
-const createorupdateinvoice = async (req, res, next) => {
-
-    let allinvoice = req.body.invoice;
-    let headertext = req.body.invoice.authorization;
-    if (headertext !== "invoicerequest") {
-        return res.status(400).json("Authorization restricted");
-    }
-    // console.log("req.body");
-    // console.log(req.body);
-    let userid = req.params.userid;
-    let singleinvoice = null;
-    // console.log("allinvoice ");
-    // console.log(singleinvoice);
-    singleinvoice = allinvoice;
-    let invoice = null, isexistinvoice, updatesexistinvoice;
-    // console.log('singleinvoice');
-    // console.log(singleinvoice);
+const incremeantstockid = async (userid, stockcount) => {
+    let inputeuserid = userid;
+    let stockidvalue, finalsave;
     try {
-        updatesexistinvoice = await InvoiceDetail.find({ userid: userid, invoiceid: singleinvoice.invoiceid });
-
+        stockidvalue = await StockDeatailCounter.find({ userid: inputeuserid });
     } catch (er) {
-        throw new HttpError('error in exist search', 400);
+        return ("exist search");
     }
-    // console.log('updatesexistinvoice');
-    // console.log(updatesexistinvoice);
-    // console.log(updatesexistinvoice.length);
-    if (updatesexistinvoice.length === 0) {
-        invoice = new InvoiceDetail({
-            columns: singleinvoice.columns,
-            userid: userid,
-            invoiceid: singleinvoice.invoiceid,
-            invoicedate: singleinvoice.invoicedate,
-            invoicedate1: singleinvoice.invoicedate1,
-            paymentdate: singleinvoice.paymentdate,
-            paymentdate1: singleinvoice.paymentdate1,
-            paymentmode: singleinvoice.paymentmode,
-            list: singleinvoice.list,
-            hsnlist: singleinvoice.hsnlist,
-            otherchargedetail: singleinvoice.otherchargedetail,
-            totalcentaxamt: singleinvoice.totalcentaxamt,
-            totalstatetaxamt: singleinvoice.totalstatetaxamt,
-            totalsubamt: singleinvoice.totalsubamt,
-            totalamt: singleinvoice.totalamt,
-            totalamtwords: singleinvoice.totalamtwords,
-            totaltaxvalueamt: singleinvoice.totaltaxvalueamt,
-            totalhsnamt: singleinvoice.totalhsnamt,
-            totalhsnamtwords: singleinvoice.totalhsnamtwords,
-            clientAdd: singleinvoice.clientAdd,
-            clientName: singleinvoice.clientName,
-            clientPhno: singleinvoice.clientPhno,
-            ctrate: singleinvoice.ctrate,
-            strate: singleinvoice.strate,
-        });
-        // console.log('invoice');
-        // console.log(invoice);
-        try {
+    console.log('stockidvalue');
+    console.log(stockidvalue);
+    var datetime = new Date();
+    if (stockidvalue.length > 0) {
+        finalsave = stockidvalue[0];
 
-            await invoice.save({ upsert: true });
+        console.log('inside');
+        finalsave.stockdeatilcount = stockcount;
+        finalsave.date = datetime
+        console.log(finalsave);
+        try {
+            await finalsave.save({ upsert: true });
         } catch (er) {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-            return res.status(400).json("error in new saving" + er);
+            return ("error in exist search");
         }
-
     }
     else {
-        isexistinvoice = updatesexistinvoice[0];
-        //  console.log('isexistinvoice');
-        //  console.log(isexistinvoice);
-        isexistinvoice.columns = singleinvoice.columns;
-        isexistinvoice.invoicedate = singleinvoice.invoicedate;
-        isexistinvoice.invoicedate1 = singleinvoice.invoicedate1;
-        isexistinvoice.paymentdate = singleinvoice.paymentdate;
-        isexistinvoice.paymentdate1 = singleinvoice.paymentdate1;
-        isexistinvoice.paymentmode = singleinvoice.paymentmode;
-        isexistinvoice.list = singleinvoice.list;
-        isexistinvoice.hsnlist = singleinvoice.hsnlist;
-        isexistinvoice.otherchargedetail = singleinvoice.otherchargedetail;
-        isexistinvoice.totalcentaxamt = singleinvoice.totalcentaxamt;
-        isexistinvoice.totalstatetaxamt = singleinvoice.totalstatetaxamt;
-        isexistinvoice.totalsubamt = singleinvoice.totalsubamt;
-        isexistinvoice.totalamt = singleinvoice.totalamt;
-        isexistinvoice.totalamtwords = singleinvoice.totalamtwords;
-        isexistinvoice.totaltaxvalueamt = singleinvoice.totaltaxvalueamt;
-        isexistinvoice.totalhsnamt = singleinvoice.totalhsnamt;
-        isexistinvoice.totalhsnamtwords = singleinvoice.totalhsnamtwords;
-        isexistinvoice.clientAdd = singleinvoice.clientAdd;
-        isexistinvoice.clientName = singleinvoice.clientName;
-        isexistinvoice.clientPhno = singleinvoice.clientPhno;
-        isexistinvoice.ctrate = singleinvoice.ctrate;
-        isexistinvoice.strate = singleinvoice.strate;
-
+        console.log('else');
+        finalsave = new StockDeatailCounter({
+            userid: inputeuserid,
+            stockdeatilcount: stockcount,
+            date: datetime
+        });
         try {
 
-            // console.log('before isexistinvoice');
-            // console.log(isexistinvoice);
-            await isexistinvoice.save();
-            //  await invoiceDetails.findByIdAndUpdate();
-            // console.log(' after isexistinvoice');
-            // console.log(isexistinvoice);
+            await finalsave.save({ upsert: true });
         } catch (er) {
             // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-            return res.status(400).json("error in updating" + er);
+            return ("error in exist search");
         }
-
     }
-
-
-    return res.status(200).json('invoice saved');
-
+    return ("updated");
 }
+
 
 exports.getAllStockdata = getAllStockdata;
-exports.addOrUpdateStockdata=addOrUpdateStockdata;
-
-exports.getInvoiceid = getInvoiceid;
-exports.incremeantinvoiceid = incremeantinvoiceid;
-exports.createorupdateinvoice = createorupdateinvoice;
+exports.getAllHistoryStockdata = getAllHistoryStockdata;
+exports.getAllHistorySalesStockdata = getAllHistorySalesStockdata;
+exports.addOrUpdateStockdata = addOrUpdateStockdata;
+exports.addOrUpdateSaleStockdata = addOrUpdateSaleStockdata;
+exports.getstockid = getstockid;
+exports.getAllClientdata = getAllClientdata;
+exports.getsalesstockid = getsalesstockid;
