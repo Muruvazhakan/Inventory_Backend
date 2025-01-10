@@ -1,6 +1,5 @@
 const { AllStockDetailSchema, StockDetails, StockDeatailCounter, ClientDetailsSchema, SalestockDetailCounter, AllSalesStockDetailSchema, SaleStockDetailSchema } = require("../Module/StockDetailMode");
 const HttpError = require("../Module/httpError");
-const { InvoiceDetail, InvoiceDetailCounter } = require("../Module/InvoiceDetailModel");
 
 const getAllStockdata = async (req, res, next) => {
     let inputuserid = req.params.userid;
