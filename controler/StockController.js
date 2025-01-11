@@ -603,7 +603,7 @@ const incremeantsalestockid = async (userid, salestockidcount) => {
         console.log('else');
         finalsave = new SalestockDetailCounter({
             userid: inputeuserid,
-            salestockdeatilcount: stockcount,
+            salestockdeatilcount: salestockidcount,
             date: datetime,
         });
         try {
