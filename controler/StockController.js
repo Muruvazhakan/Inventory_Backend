@@ -75,6 +75,47 @@ const getAllClientdata = async (req, res, next) => {
     }
 }
 
+const deleteStock = async (req, res, next) => {
+
+    let singlestock = req.body.stock.stocklist;
+    let headertext = req.body.stock.authorization;
+    console.log('deleteStock ....');
+    console.log(singlestock);
+    let userid = req.params.userid, updatesexiststock;
+    if (headertext !== "stockrequest") {
+        return res.status(400).json("Authorization restricted");
+    }
+
+    try {
+        updatesexiststock = await AllStockDetailSchema.find({ userid: userid, productid: singlestock.productid });
+
+    } catch (er) {
+        return res.status(400).json('error in stock search at deleting flow ');
+    }
+
+    if (updatesexiststock.length === 0) {
+        return res.status(404).json('No stocks was found');
+    }
+    else {
+        isexiststock = updatesexiststock[0];
+        console.log('isexiststock');
+        console.log(isexiststock);
+        isexiststock.status = "Deleted";
+        try {
+
+            console.log('before isexiststock');
+            console.log(isexiststock);
+            await isexiststock.save();
+        } catch (er) {
+            console.log("error in updating single stock ");
+            console.log(er);
+            // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+            return res.status(400).json('error in deleting stock');
+        }
+    }
+
+    return res.status(200).json('stocks deleted');
+}
 
 const addOrUpdateStock = async (props, userid, type) => {
     let singlestock, stock = null, isexiststock, updatesexiststock;
@@ -100,11 +141,12 @@ const addOrUpdateStock = async (props, userid, type) => {
                 productid: singlestock.productid,
                 quantity: singlestock.quantity,
                 desc: singlestock.desc,
+                status: "Active",
                 rate: singlestock.rate,
                 lastupdatedstockdate: datetime,
             });
-            // console.log('stock');
-            // console.log(stock);
+            console.log('stock');
+            console.log(stock);
             try {
 
                 await stock.save({ upsert: true });
@@ -125,6 +167,8 @@ const addOrUpdateStock = async (props, userid, type) => {
             console.log(singlestock);
             console.log("type^^^^ " + type);
             console.log(' before avgrate' + avgrate);
+            singlestock.status
+            isexiststock.status = singlestock.status ? singlestock.status : (isexiststock.status ? isexiststock.status : "Active");
             if (type == "add") {
                 totamt = preamt + currentamt;
                 totqyt = ((singlestock.quantity * 1) + (isexiststock.quantity * 1));
@@ -135,7 +179,10 @@ const addOrUpdateStock = async (props, userid, type) => {
             } else if (type == "sale") {
                 totqyt = ((singlestock.quantity * -1) + (isexiststock.quantity * 1));
                 totamt = preamt - currentamt;
+            } else if (type === "delete") {
+                isexiststock.status = "Deleted";
             }
+
             isexiststock.quantity = totqyt;
             isexiststock.desc = singlestock.desc;
             isexiststock.lastupdatedstockdate = datetime;
@@ -236,8 +283,8 @@ const addOrUpdateStockdata = async (req, res, next) => {
     // console.log("allstock ");
     // console.log(singlestock);
     // singlestock = allstock;
-    let stock = null, isexiststock, updatesexiststock,beforeisexistsalestock,existstock=false;
-    
+    let stock = null, isexiststock, updatesexiststock, beforeisexistsalestock, existstock = false;
+
     let responClientUpdate = await addOrUpdateClient(req.body.stock, userid, clientid, "add")
     console.log('responClientUpdate');
     console.log(responClientUpdate);
@@ -308,7 +355,7 @@ const addOrUpdateStockdata = async (req, res, next) => {
         console.log("$$$$$$ beforeisexistsalestock ????? ");
         console.log(beforeisexistsalestock);
         let isexistsales = beforeisexistsalestock.rows;
-        let compainedvalue = [...stocklist,...isexistsales];
+        let compainedvalue = [...stocklist, ...isexistsales];
         console.log("$$$$$$ isexistsales ????? ");
         console.log(isexistsales);
 
@@ -317,26 +364,26 @@ const addOrUpdateStockdata = async (req, res, next) => {
             console.log(innerrows);
             let found = false;
             if (accumalatevalue.length > 0) {
-              for (let i = 0; i < accumalatevalue.length; i++) {
-                if (accumalatevalue[i].productid === innerrows.productid) {
-                  found = true;
-                  accumalatevalue[i].quantity = (accumalatevalue[i].quantity * 1) - (innerrows.quantity * 1);
-                  console.log(" found &&&");
-                  console.log(accumalatevalue);
+                for (let i = 0; i < accumalatevalue.length; i++) {
+                    if (accumalatevalue[i].productid === innerrows.productid) {
+                        found = true;
+                        accumalatevalue[i].quantity = (accumalatevalue[i].quantity * 1) - (innerrows.quantity * 1);
+                        console.log(" found &&&");
+                        console.log(accumalatevalue);
+                    }
                 }
-              }
-              if (!found) {
-                accumalatevalue = [...accumalatevalue, innerrows];
-                console.log("nt found &&&");
-              }
+                if (!found) {
+                    accumalatevalue = [...accumalatevalue, innerrows];
+                    console.log("nt found &&&");
+                }
             } else {
-              accumalatevalue = [innerrows];
-              console.log("else &&&");
+                accumalatevalue = [innerrows];
+                console.log("else &&&");
             }
             console.log("accumalatevalue &&&");
             console.log(accumalatevalue);
             // return accumalatevalue;
-          });
+        });
         console.log('accumalatevalue add stocks');
         console.log(accumalatevalue);
         let responUpdatesale = await addOrUpdateStock(accumalatevalue, userid, "add");
@@ -456,7 +503,7 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
         console.log("$$$$$$ beforeisexistsalestock ????? ");
         console.log(beforeisexistsalestock);
         let isexistsales = beforeisexistsalestock.rows;
-        let compainedvalue = [...salestocklist,...isexistsales];
+        let compainedvalue = [...salestocklist, ...isexistsales];
         console.log("$$$$$$ isexistsales ????? ");
         console.log(isexistsales);
 
@@ -465,26 +512,26 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
             console.log(innerrows);
             let found = false;
             if (accumalatevalue.length > 0) {
-              for (let i = 0; i < accumalatevalue.length; i++) {
-                if (accumalatevalue[i].productid === innerrows.productid) {
-                  found = true;
-                  accumalatevalue[i].quantity = (accumalatevalue[i].quantity * 1) - (innerrows.quantity * 1);
-                  console.log(" found &&&");
-                  console.log(accumalatevalue);
+                for (let i = 0; i < accumalatevalue.length; i++) {
+                    if (accumalatevalue[i].productid === innerrows.productid) {
+                        found = true;
+                        accumalatevalue[i].quantity = (accumalatevalue[i].quantity * 1) - (innerrows.quantity * 1);
+                        console.log(" found &&&");
+                        console.log(accumalatevalue);
+                    }
                 }
-              }
-              if (!found) {
-                accumalatevalue = [...accumalatevalue, innerrows];
-                console.log("nt found &&&");
-              }
+                if (!found) {
+                    accumalatevalue = [...accumalatevalue, innerrows];
+                    console.log("nt found &&&");
+                }
             } else {
-              accumalatevalue = [innerrows];
-              console.log("else &&&");
+                accumalatevalue = [innerrows];
+                console.log("else &&&");
             }
             console.log("accumalatevalue &&&");
             console.log(accumalatevalue);
             // return accumalatevalue;
-          });
+        });
 
         // for (let i = 0; i < salestocklist.length; i++) {
         //     let found = false;
@@ -668,3 +715,4 @@ exports.addOrUpdateSaleStockdata = addOrUpdateSaleStockdata;
 exports.getstockid = getstockid;
 exports.getAllClientdata = getAllClientdata;
 exports.getsalesstockid = getsalesstockid;
+exports.deleteStock = deleteStock;

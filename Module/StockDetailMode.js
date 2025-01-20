@@ -28,6 +28,7 @@ const clientDetailsSchema = new schema({
 const allStockDetailSchema = new schema({
     productid: { type: String },
     desc: { type: String },
+    status: { type: String },
     quantity: { type: Number },
     rate: { type: Number },
     userid: { type: String, required: true },
