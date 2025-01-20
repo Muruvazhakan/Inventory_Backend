@@ -142,6 +142,7 @@ const addOrUpdateStock = async (props, userid, type) => {
                 quantity: singlestock.quantity,
                 desc: singlestock.desc,
                 status: "Active",
+                salerate: singlestock.salerate,
                 rate: singlestock.rate,
                 lastupdatedstockdate: datetime,
             });
@@ -159,9 +160,10 @@ const addOrUpdateStock = async (props, userid, type) => {
             isexiststock = updatesexiststock[0];
             //  console.log('isexiststock');
             //  console.log(isexiststock); 40/3
-            let num = 1, avgrate = 0, preamt = 0, currentamt = 0, totamt = 0, totqyt = 0;
+            let num = 1, avgrate = 0, preamt = 0, currentamt = 0, totamt = 0, totqyt = 0,avgsalerate = 0;;
             console.log('isexiststock' + isexiststock);
             preamt = (isexiststock.rate * 1 * isexiststock.quantity * 1);
+            avgsalerate = (isexiststock.salerate * 1);
             currentamt = (singlestock.rate * 1 * singlestock.quantity * 1);
             //  console.log('singlestock' + singlestock );
             console.log(singlestock);
@@ -176,6 +178,7 @@ const addOrUpdateStock = async (props, userid, type) => {
                     avgrate = ((totamt) / (totqyt)).toFixed(2);
                 console.log('after avgrate' + avgrate);
                 isexiststock.rate = avgrate;
+                isexiststock.salerate = singlestock.salerate;
             } else if (type == "sale") {
                 totqyt = ((singlestock.quantity * -1) + (isexiststock.quantity * 1));
                 totamt = preamt - currentamt;

@@ -31,6 +31,7 @@ const allStockDetailSchema = new schema({
     status: { type: String },
     quantity: { type: Number },
     rate: { type: Number },
+    salerate: { type: Number },
     userid: { type: String, required: true },
     lastupdatedstockdate: { type: String },
 });
