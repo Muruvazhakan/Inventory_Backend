@@ -140,6 +140,8 @@ const addOrUpdateStock = async (props, userid, type) => {
                 userid: userid,
                 productid: singlestock.productid,
                 quantity: singlestock.quantity,
+                totalquantity:singlestock.quantity,
+                soldquantity:0,
                 desc: singlestock.desc,
                 status: "Active",
                 salerate: singlestock.salerate,
@@ -171,19 +173,23 @@ const addOrUpdateStock = async (props, userid, type) => {
             console.log(' before avgrate' + avgrate);
             singlestock.status
             isexiststock.status = singlestock.status ? singlestock.status : (isexiststock.status ? isexiststock.status : "Active");
-            if (type == "add") {
+            if (type === "add") {
                 totamt = preamt + currentamt;
                 totqyt = ((singlestock.quantity * 1) + (isexiststock.quantity * 1));
+                isexiststock.totalquantity = ((singlestock.quantity * 1) + (isexiststock.totalquantity * 1));
                 if (totqyt != 0)
                     avgrate = ((totamt) / (totqyt)).toFixed(2);
                 console.log('after avgrate' + avgrate);
                 isexiststock.rate = avgrate;
                 isexiststock.salerate = singlestock.salerate;
-            } else if (type == "sale") {
+                isexiststock.status = "Active";
+            } else if (type === "sale") {
                 totqyt = ((singlestock.quantity * -1) + (isexiststock.quantity * 1));
                 totamt = preamt - currentamt;
+                isexiststock.soldquantity = ((singlestock.quantity * 1) + ((isexiststock.soldquantity && isexiststock.soldquantity!==null?isexiststock.soldquantity:0) * 1));
             } else if (type === "delete") {
                 isexiststock.status = "Deleted";
+                isexiststock.quantity=0;
             }
 
             isexiststock.quantity = totqyt;
@@ -198,6 +204,8 @@ const addOrUpdateStock = async (props, userid, type) => {
                 // console.log(' after isexistinvoice');
                 // console.log(isexistinvoice);
             } catch (er) {
+                console.log("error in updating single stock ");
+                console.log(er);
                 // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
                 return ("error in updating");
             }
