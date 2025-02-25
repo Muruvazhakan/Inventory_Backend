@@ -9,6 +9,22 @@ const {
 } = require("../Module/StockDetailMode");
 const HttpError = require("../Module/httpError");
 
+const stockIdgenerator = (type, ipcount) => {
+  const today = new Date();
+  let idgen;
+
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+  const date = today.getDate();
+  if (type === "Stocks") {
+    idgen = `ST${year}${month}${date}${ipcount}`;
+  } else {
+    idgen = `SA${year}${month}${date}${ipcount}`;
+  }
+  console.log("idgen " + idgen);
+  return idgen;
+};
+
 const getAllStockdata = async (req, res, next) => {
   let inputuserid = req.params.userid;
   console.log("get getAllStockdata" + inputuserid);
@@ -308,7 +324,13 @@ const addOrUpdateClient = async (props, userid, clientid, type) => {
 const addOrUpdateStockdata = async (req, res, next) => {
   let stocklist = req.body.stock.stocklist;
   let clientid = req.body.stock.clientid;
+  let singlestock = req.body.stock;
   let stockidcount = req.body.stock.stockidcount;
+  let stockiddata = singlestock.stockid;
+  let stockidcounter = 0,
+    stockidresp;
+  let userid = req.params.userid;
+
   // console.log("req.body");
   // console.log(req.body);
   let stockupdate = false;
@@ -319,9 +341,6 @@ const addOrUpdateStockdata = async (req, res, next) => {
   if (headertext !== "stockrequest") {
     return res.status(400).json("Authorization restricted");
   }
-
-  let userid = req.params.userid;
-  let singlestock = req.body.stock;
   // console.log("allstock ");
   // console.log(singlestock);
   // singlestock = allstock;
@@ -342,40 +361,22 @@ const addOrUpdateStockdata = async (req, res, next) => {
   if (responClientUpdate != "updated")
     return res.status(400).json("error in " + responClientUpdate);
 
-  // console.log('singlestock');
-  // console.log(singlestock);
-  try {
-    updatesexiststock = await StockDetails.find({
-      userid: userid,
-      stockid: singlestock.stockid,
-    });
-  } catch (er) {
-    throw new HttpError("error in exist search", 400);
-  }
-  console.log("updatesexiststock");
-  console.log(updatesexiststock);
-  console.log(updatesexiststock.length);
+  console.log("singlestock");
+  console.log(singlestock);
   var datetime = new Date();
-  if (updatesexiststock.length === 0) {
-    stock = new StockDetails({
-      userid: userid,
-      rows: singlestock.stocklist,
-      totalamt: singlestock.totalamt,
-      stockid: singlestock.stockid,
-      clientid: singlestock.clientid,
-      lastupdatedstockdate: datetime,
-      stockdate: singlestock.stockdate,
-    });
-    console.log("stock");
-    console.log(stock);
+
+  if (singlestock.stockid !== "" && singlestock.stockid !== undefined) {
     try {
-      await stock.save({ upsert: true });
+      updatesexiststock = await StockDetails.find({
+        userid: userid,
+        stockid: singlestock.stockid,
+      });
     } catch (er) {
-      // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-      return res.status(400).json("error in new saving" + er);
+      throw new HttpError("error in exist search", 400);
     }
-    stockupdate = true;
-  } else {
+    console.log("updatesexiststock");
+    console.log(updatesexiststock);
+    console.log(updatesexiststock.length);
     isexiststock = updatesexiststock[0];
     beforeisexistsalestock = JSON.parse(JSON.stringify(isexiststock));
     existstock = true;
@@ -394,10 +395,44 @@ const addOrUpdateStockdata = async (req, res, next) => {
       // console.log(' after isexistinvoice');
       // console.log(isexistinvoice);
     } catch (er) {
+      console.log(er);
       // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
       return res.status(400).json("error in updating" + er);
     }
-    // stockupdate=true;
+  } else {
+    try {
+      stockidresp = await StockDeatailCounter.find({
+        userid: userid,
+      });
+      if (stockidresp.length !== 0) {
+        stockidcounter = stockidresp[0].stockdeatilcount;
+        stockidcounter = stockidcounter * 1;
+      } else {
+        stockidcounter = 1000;
+      }
+    } catch (er) {
+      throw new HttpError("error in search user" + er, 400);
+    }
+
+    stockiddata = stockIdgenerator("Stocks", stockidcounter);
+    stock = new StockDetails({
+      userid: userid,
+      rows: singlestock.stocklist,
+      totalamt: singlestock.totalamt,
+      stockid: stockiddata,
+      clientid: singlestock.clientid,
+      lastupdatedstockdate: datetime,
+      stockdate: singlestock.stockdate,
+    });
+    console.log("stock");
+    console.log(stock);
+    try {
+      await stock.save({ upsert: true });
+    } catch (er) {
+      // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+      return res.status(400).json("error in new saving" + er);
+    }
+    stockupdate = true;
   }
 
   if (existstock) {
@@ -454,21 +489,25 @@ const addOrUpdateStockdata = async (req, res, next) => {
       return res.status(400).json("error in " + responUpdate);
   }
   if (stockupdate) {
-    let results = await incremeantstockid(userid, stockidcount);
+    let results = await incremeantstockid(userid, ++stockidcounter);
     console.log("results");
     console.log(results);
     if (results !== "updated")
       return res.status(400).json("error in " + results);
   }
 
-  return res.status(200).json("stocks saved");
+  return res.status(200).json({ message: "stocks saved", id: stockiddata });
 };
 
 const addOrUpdateSaleStockdata = async (req, res, next) => {
+  let inputuserid = req.params.userid;
   let salestocklist = req.body.salestock.salestocklist;
   let clientid = req.body.salestock.clientid;
-  let salestockidcount = req.body.salestock.salestockidcount;
-
+  let singlesalestock = req.body.salestock;
+  let stockiddata = singlesalestock.salestockid;
+  let salestockid,
+    salestockidcounter = 0,
+    salestockidresp;
   console.log("req.body");
   console.log(req.body);
   let salestockupdate = false,
@@ -482,7 +521,7 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
   }
 
   let userid = req.params.userid;
-  let singlesalestock = req.body.salestock;
+
   // console.log("allsalestock ");
   // console.log(singlesalestock);
   // singlesalestock = allsalestock;
@@ -505,40 +544,20 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
 
   console.log("singlesalestock");
   console.log(singlesalestock);
-  try {
-    updatesexistsalestock = await SaleStockDetailSchema.find({
-      userid: userid,
-      salestockid: singlesalestock.salestockid,
-    });
-  } catch (er) {
-    throw new HttpError("error in exist search", 400);
-  }
-  console.log("updatesexistsalestock");
-  console.log(updatesexistsalestock);
-  console.log(updatesexistsalestock.length);
-
   var datetime = new Date();
-  if (updatesexistsalestock.length === 0) {
-    salestock = new SaleStockDetailSchema({
-      userid: userid,
-      rows: singlesalestock.salestocklist,
-      totalsalesamt: singlesalestock.totalsalesamt,
-      salestockid: singlesalestock.salestockid,
-      clientid: singlesalestock.clientid,
-      lastupdatedsalestockdate: datetime,
-      salestockdate: singlesalestock.salestockdate,
-    });
-    console.log("salestock");
-    console.log(salestock);
+  if (singlesalestock.salestockid !== "") {
     try {
-      await salestock.save({ upsert: true });
+      updatesexistsalestock = await SaleStockDetailSchema.find({
+        userid: userid,
+        salestockid: singlesalestock.salestockid,
+      });
     } catch (er) {
-      // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-      return res.status(400).json("error in new saving" + er);
+      throw new HttpError("error in exist search", 400);
     }
-    // return res.status(200).json('sale salestocks saved');
-    salestockupdate = true;
-  } else {
+    console.log("updatesexistsalestock");
+    console.log(updatesexistsalestock);
+    console.log(updatesexistsalestock.length);
+
     isexistsalestock = updatesexistsalestock[0];
     beforeisexistsalestock = JSON.parse(JSON.stringify(isexistsalestock));
     existstock = true;
@@ -557,6 +576,40 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
       // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
       return res.status(400).json("error in updating" + er);
     }
+  } else {
+    try {
+      salestockidresp = await SalestockDetailCounter.find({
+        userid: inputuserid,
+      });
+      if (salestockidresp.length !== 0) {
+        salestockidcounter = salestockidresp[0].salestockdeatilcount;
+        salestockidcounter = salestockidcounter * 1;
+      } else {
+        salestockidcounter = 1000;
+      }
+    } catch (er) {
+      throw new HttpError("error in search user", 400);
+    }
+
+    stockiddata = stockIdgenerator("Sales", salestockidcounter);
+    salestock = new SaleStockDetailSchema({
+      userid: userid,
+      rows: singlesalestock.salestocklist,
+      totalsalesamt: singlesalestock.totalsalesamt,
+      salestockid: stockiddata,
+      clientid: singlesalestock.clientid,
+      lastupdatedsalestockdate: datetime,
+      salestockdate: singlesalestock.salestockdate,
+    });
+    console.log("salestock");
+    console.log(salestock);
+    try {
+      await salestock.save({ upsert: true });
+    } catch (er) {
+      // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
+      return res.status(400).json("error in new saving" + er);
+    }
+    // return res.status(200).json('sale salestocks saved');
     salestockupdate = true;
   }
   if (existstock) {
@@ -637,14 +690,16 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
   }
 
   if (salestockupdate) {
-    let results = await incremeantsalestockid(userid, salestockidcount);
+    let results = await incremeantsalestockid(userid, ++salestockidcounter);
     console.log("results");
     console.log(results);
     if (results !== "updated")
       return res.status(400).json("error in " + results);
   }
 
-  return res.status(200).json("sale salestocks saved");
+  return res
+    .status(200)
+    .json({ message: "sale salestocks saved", id: stockiddata });
 };
 
 const getstockid = async (req, res, next) => {
@@ -685,46 +740,32 @@ const getsalesstockid = async (req, res, next) => {
 };
 
 const incremeantsalestockid = async (userid, salestockidcount) => {
-  let inputeuserid = userid;
-  let salestockidvalue, finalsave;
+  const datetime = new Date();
   try {
-    salestockidvalue = await SalestockDetailCounter.find({
-      userid: inputeuserid,
-    });
+    const finalsave = await SalestockDetailCounter.findOneAndUpdate(
+      { userid: userid },
+      {
+        $set: {
+          salestockdeatilcount: salestockidcount,
+          date: datetime,
+        },
+      },
+      { upsert: true, new: true } // `new: true` returns the updated document
+    );
+
+    if (finalsave) {
+      console.log("Updated/Inserted: ", finalsave);
+      return "updated";
+    } else {
+      console.log("Error with update");
+      return "error in DB operation";
+    }
   } catch (er) {
-    return "exist search";
+    console.log("Error:", er);
+    return "error in DB operation";
   }
-  console.log("salestockidvalue");
-  console.log(salestockidvalue);
-  var datetime = new Date();
-  if (salestockidvalue.length > 0) {
-    finalsave = salestockidvalue[0];
-    finalsave.date = datetime;
-    console.log("inside");
-    finalsave.salestockdeatilcount = salestockidcount;
-    console.log(finalsave);
-    try {
-      await finalsave.save({ upsert: true });
-    } catch (er) {
-      // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-      return "error in exist search";
-    }
-  } else {
-    console.log("else");
-    finalsave = new SalestockDetailCounter({
-      userid: inputeuserid,
-      salestockdeatilcount: salestockidcount,
-      date: datetime,
-    });
-    try {
-      await finalsave.save({ upsert: true });
-    } catch (er) {
-      // return next(new HttpError('error in DB connection in isUserexit process'+er,404));
-      return "error in exist search";
-    }
-  }
-  return "updated";
 };
+
 const incremeantstockid = async (userid, stockcount) => {
   let inputeuserid = userid;
   let stockidvalue, finalsave;
