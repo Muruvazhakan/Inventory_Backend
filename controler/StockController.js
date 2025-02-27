@@ -440,36 +440,77 @@ const addOrUpdateStockdata = async (req, res, next) => {
     console.log("$$$$$$ beforeisexistsalestock ????? ");
     console.log(beforeisexistsalestock);
     let isexistsales = beforeisexistsalestock.rows;
-    let compainedvalue = [...stocklist, ...isexistsales];
-    console.log("$$$$$$ isexistsales ????? ");
-    console.log(isexistsales);
 
-    let singllistofsales = compainedvalue.map((innerrows) => {
-      console.log("innerrows");
-      console.log(innerrows);
-      let found = false;
-      if (accumalatevalue.length > 0) {
-        for (let i = 0; i < accumalatevalue.length; i++) {
-          if (accumalatevalue[i].productid === innerrows.productid) {
-            found = true;
-            accumalatevalue[i].quantity =
-              accumalatevalue[i].quantity * 1 - innerrows.quantity * 1;
-            console.log(" found &&&");
-            console.log(accumalatevalue);
-          }
-        }
-        if (!found) {
-          accumalatevalue = [...accumalatevalue, innerrows];
-          console.log("nt found &&&");
-        }
+    isexistsales.forEach((innerRow) => {
+      // Check if this product exists in stocklist
+      const productInStock = stocklist.find(
+        (stockItem) => stockItem.productid === innerRow.productid
+      );
+
+      // If the product is missing in stocklist (it might have been deleted), add it back to accumalatevalue
+      if (!productInStock) {
+        console.log(
+          `Product ${innerRow.productid} from isexistsales is missing in stocklist. Adding back to accumalatevalue.`
+        );
+        innerRow.quantity = innerRow.quantity * -1;
+        accumalatevalue.push(innerRow); // Add the product from isexistsales
       } else {
-        accumalatevalue = [innerrows];
-        console.log("else &&&");
+        // If the product exists in both lists, update the quantity
+        console.log(
+          `Product ${innerRow.productid} exists in both lists. Adjusting quantity.`
+        );
+        productInStock.quantity =
+          productInStock.quantity * 1 - innerRow.quantity * 1;
+        if (productInStock.quantity !== 0) accumalatevalue.push(productInStock);
       }
-      console.log("accumalatevalue &&&");
-      console.log(accumalatevalue);
-      // return accumalatevalue;
     });
+
+    // Now, handle any additional products from stocklist that are not in isexistsales
+    stocklist.forEach((innerRow) => {
+      // If the product does not exist in isexistsales, add it directly
+      const productInSales = isexistsales.find(
+        (saleItem) => saleItem.productid === innerRow.productid
+      );
+      if (!productInSales) {
+        console.log(
+          `Product ${innerRow.productid} from stocklist is not in isexistsales. Adding to accumalatevalue.`
+        );
+
+        accumalatevalue.push(innerRow); // Add the product from stocklist
+      }
+    });
+
+    // let compainedvalue = [...stocklist, ...isexistsales];
+    // console.log("$$$$$$ isexistsales ????? ");
+    // console.log(isexistsales);
+
+    //  compainedvalue.map((innerrows) => {
+    //   console.log("innerrows");
+    //   console.log(innerrows);
+    //   let found = false;
+    //   if (accumalatevalue.length > 0) {
+    //     for (let i = 0; i < accumalatevalue.length; i++) {
+    //       if (accumalatevalue[i].productid === innerrows.productid) {
+    //         found = true;
+    //         accumalatevalue[i].quantity =
+    //           accumalatevalue[i].quantity * 1 - innerrows.quantity * 1;
+    //         console.log(" found &&&");
+    //         console.log(accumalatevalue);
+    //       }
+    //     }
+    //     if (!found) {
+    //       accumalatevalue = [...accumalatevalue, innerrows];
+    //       console.log("nt found &&&");
+    //     }
+    //   } else {
+    //     accumalatevalue = [innerrows];
+    //     console.log("else &&&");
+    //   }
+    //   console.log("accumalatevalue &&&");
+    //   console.log(accumalatevalue);
+    //   // return accumalatevalue;
+    // });
+
     console.log("accumalatevalue add stocks");
     console.log(accumalatevalue);
     let responUpdatesale = await addOrUpdateStock(
@@ -617,59 +658,73 @@ const addOrUpdateSaleStockdata = async (req, res, next) => {
     console.log("$$$$$$ beforeisexistsalestock ????? ");
     console.log(beforeisexistsalestock);
     let isexistsales = beforeisexistsalestock.rows;
-    let compainedvalue = [...salestocklist, ...isexistsales];
-    console.log("$$$$$$ isexistsales ????? ");
-    console.log(isexistsales);
 
-    let singllistofsales = compainedvalue.map((innerrows) => {
-      console.log("innerrows");
-      console.log(innerrows);
-      let found = false;
-      if (accumalatevalue.length > 0) {
-        for (let i = 0; i < accumalatevalue.length; i++) {
-          if (accumalatevalue[i].productid === innerrows.productid) {
-            found = true;
-            accumalatevalue[i].quantity =
-              accumalatevalue[i].quantity * 1 - innerrows.quantity * 1;
-            console.log(" found &&&");
-            console.log(accumalatevalue);
-          }
-        }
-        if (!found) {
-          accumalatevalue = [...accumalatevalue, innerrows];
-          console.log("nt found &&&");
-        }
+    isexistsales.forEach((innerRow) => {
+      // Check if this product exists in salestocklist
+      const productInStock = salestocklist.find(
+        (stockItem) => stockItem.productid === innerRow.productid
+      );
+
+      // If the product is missing in salestocklist (it might have been deleted), add it back to accumalatevalue
+      if (!productInStock) {
+        console.log(
+          `Product ${innerRow.productid} from isexistsales is missing in salestocklist. Adding back to accumalatevalue.`
+        );
+        innerRow.quantity = innerRow.quantity * -1;
+        accumalatevalue.push(innerRow); // Add the product from isexistsales
       } else {
-        accumalatevalue = [innerrows];
-        console.log("else &&&");
+        // If the product exists in both lists, update the quantity
+        console.log(
+          `Product ${innerRow.productid} exists in both lists. Adjusting quantity.`
+        );
+        productInStock.quantity =
+          productInStock.quantity * 1 - innerRow.quantity * 1;
+        if (productInStock.quantity !== 0) accumalatevalue.push(productInStock);
       }
-      console.log("accumalatevalue &&&");
-      console.log(accumalatevalue);
-      // return accumalatevalue;
     });
 
-    // for (let i = 0; i < salestocklist.length; i++) {
-    //     let found = false;
-    //     let currentexistsales;
-    //     console.log("$$$$$$ salestocklist &&&&");
-    //     console.log(salestocklist);
+    // Now, handle any additional products from salestocklist that are not in isexistsales
+    salestocklist.forEach((innerRow) => {
+      // If the product does not exist in isexistsales, add it directly
+      const productInSales = isexistsales.find(
+        (saleItem) => saleItem.productid === innerRow.productid
+      );
+      if (!productInSales) {
+        console.log(
+          `Product ${innerRow.productid} from stocklist is not in isexistsales. Adding to accumalatevalue.`
+        );
 
-    //     for (let j = 0; j < isexistsales.length; j++) {
-    //         console.log("isexistsales &&&&");
-    //         console.log(isexistsales);
-    //         if (salestocklist[i].productid == isexistsales[j].productid) {
-    //             found = true;
-    //             salestocklist[i].quantity = Math.abs((salestocklist[i].quantity * 1) - (isexistsales[j].quantity * 1));
-    //             console.log("******salestocklist[i].quantity &&&&");
-    //             console.log(salestocklist[i]);
-    //         }
+        accumalatevalue.push(innerRow); // Add the product from stocklist
+      }
+    });
+
+    // let singllistofsales = compainedvalue.map((innerrows) => {
+    //   console.log("innerrows");
+    //   console.log(innerrows);
+    //   let found = false;
+    //   if (accumalatevalue.length > 0) {
+    //     for (let i = 0; i < accumalatevalue.length; i++) {
+    //       if (accumalatevalue[i].productid === innerrows.productid) {
+    //         found = true;
+    //         accumalatevalue[i].quantity =
+    //           accumalatevalue[i].quantity * 1 - innerrows.quantity * 1;
+    //         console.log(" found &&&");
+    //         console.log(accumalatevalue);
+    //       }
     //     }
-    //     if (found)
-    //         accumalatevalue = [...accumalatevalue, salestocklist[i]];
-    //     else
-    //         accumalatevalue = [...accumalatevalue, isexistsales[i]];
-    // }
-    // let responUpdateadd = await addOrUpdateStock(isexistsalestock.rows, userid, "add");
+    //     if (!found) {
+    //       accumalatevalue = [...accumalatevalue, innerrows];
+    //       console.log("nt found &&&");
+    //     }
+    //   } else {
+    //     accumalatevalue = [innerrows];
+    //     console.log("else &&&");
+    //   }
+    //   console.log("accumalatevalue &&&");
+    //   console.log(accumalatevalue);
+    //   // return accumalatevalue;
+    // });
+
     console.log("accumalatevalue add stocks");
     console.log(accumalatevalue);
     let responUpdatesale = await addOrUpdateStock(
